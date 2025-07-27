@@ -1,0 +1,14 @@
+# Development Overrides
+app:
+  port: 8001 # Use a different port for dev to be explicit
+
+logging:
+  level: "DEBUG"
+
+ai_model:
+  endpoint: "http://localhost:8888/v1/models/qwen:7b/completions" # Local vLLM
+  health_check_interval_seconds: 30
+  health_check_timeout_seconds: 5 # Short timeout for local checks
+
+local_storage:
+  path: "./uploaded_resumes" 

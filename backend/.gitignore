@@ -1,0 +1,9 @@
+# Ignore local settings file
+local.settings.json
+
+# Ignore python venv
+.venv/
+
+# Ignore pycache
+__pycache__/
+*.pyc 

@@ -1,0 +1,7 @@
+error: unrecognized subcommand 'uvicorn'
+
+  tip: some similar subcommands exist: 'version', 'v'
+
+Usage: uv [OPTIONS] <COMMAND>
+
+For more information, try '--help'.

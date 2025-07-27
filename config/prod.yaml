@@ -1,0 +1,12 @@
+# Production Overrides
+ai_model:
+  endpoint: "https://your-azure-ml-endpoint.azurewebsites.net/score" # Azure ML Online Endpoint
+  health_check_interval_seconds: 60
+  health_check_timeout_seconds: 15 # Longer timeout for remote services
+
+azure_blob:
+  connection_string: "your-azure-blob-connection-string"
+  container_name: "your-azure-blob-container-name"
+
+azure_ml:
+  api_key: "your-azure-ml-api-key"

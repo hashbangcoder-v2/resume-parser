@@ -1,0 +1,14 @@
+# Base Configuration
+app:
+  name: "Wheat From Chaff"
+  host: "0.0.0.0"
+  port: 8000
+
+database:
+  url: "sqlite:///./candidates.db"
+
+logging:
+  level: "INFO"
+
+ai_model:
+  endpoint: "http://defaults.to/this/if/not/overridden" 
