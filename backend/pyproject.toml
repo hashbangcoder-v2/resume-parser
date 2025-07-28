@@ -13,9 +13,13 @@ dependencies = [
     "omegaconf",
     "azure-storage-blob",
     "azure-identity",
-    "python-pdf2image",
+    "pdf2image",
     "Pillow",
 ]
+
+[project.scripts]
+wfc-serve = "backend.app.main:main"
+wfc-db-seed = "backend.scripts.seed_db:seed_database"
 
 [build-system]
 requires = ["setuptools"]

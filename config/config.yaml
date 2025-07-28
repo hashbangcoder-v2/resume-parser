@@ -3,6 +3,7 @@ app:
   name: "Wheat From Chaff"
   host: "0.0.0.0"
   port: 8000
+  cors_origins: [] # Default to an empty list for security
 
 database:
   url: "sqlite:///./candidates.db"

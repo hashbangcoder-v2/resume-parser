@@ -1,6 +1,11 @@
 # Development Overrides
 app:
-  port: 8001 # Use a different port for dev to be explicit
+  host: "127.0.0.1" # Listen on all interfaces for remote access
+  port: 8000
+  cors_origins:
+    - "http://localhost:3000"
+    - "http://127.0.0.1:3000"
+    - "*" # Allow all for flexible dev
 
 logging:
   level: "DEBUG"
@@ -11,4 +16,7 @@ ai_model:
   health_check_timeout_seconds: 5 # Short timeout for local checks
 
 local_storage:
-  path: "./uploaded_resumes" 
+  path: "${oc.env:PROJECT_ROOT}/uploaded_resumes" 
+
+database:
+  url: "sqlite:///${oc.env:PROJECT_ROOT}/database/dev_candidates.db"

@@ -8,3 +8,9 @@ Requires-Dist: uvicorn[standard]
 Requires-Dist: sqlalchemy
 Requires-Dist: pydantic
 Requires-Dist: python-multipart
+Requires-Dist: httpx
+Requires-Dist: omegaconf
+Requires-Dist: azure-storage-blob
+Requires-Dist: azure-identity
+Requires-Dist: pdf2image
+Requires-Dist: Pillow

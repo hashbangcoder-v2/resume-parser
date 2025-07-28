@@ -1,32 +1,22 @@
-from sqlalchemy import create_engine, Column, Integer, String, DateTime
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-import datetime
+from .config import get_config
+from .models import Base
+import logging
 
-DATABASE_URL = "sqlite:///./candidates.db"
+logger = logging.getLogger(__name__)
 
-engine = create_engine(
-    DATABASE_URL, connect_args={"check_same_thread": False}
-)
+DATABASE_URL = get_config().database.url
+logger.info(f"Database connection opened: {DATABASE_URL}")
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+Base.metadata.create_all(bind=engine)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-Base = declarative_base()
-
-class Candidate(Base):
-    __tablename__ = "candidates"
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
-    status = Column(String)
-    appliedOn = Column(DateTime, default=datetime.datetime.utcnow)
-    reason = Column(String)
-    finalStatus = Column(String)
-    jobTitle = Column(String)
-    fileUrl = Column(String)
 
 def get_db():
     db = SessionLocal()
     try:
         yield db
+        logger.info(f"Database connection opened: {DATABASE_URL}")
     finally:
         db.close() 

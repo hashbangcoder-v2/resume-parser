@@ -10,3 +10,6 @@ azure_blob:
 
 azure_ml:
   api_key: "your-azure-ml-api-key"
+
+database:
+  url: "sqlite:///${oc.env:PROJECT_ROOT}/database/candidates.db"
