@@ -5,40 +5,43 @@
 # Function to clean up background processes on exit
 cleanup() {
     echo "Shutting down services..."
-    kill $VLLM_PID $BACKEND_PID
+    if [ ! -z "$BACKEND_PID" ]; then
+        kill $BACKEND_PID
+    fi
     exit
 }
 
 # Trap SIGINT (Ctrl+C) and call the cleanup function
 trap cleanup SIGINT
-# Step 0: Activate venv
+
+# --- Environment Setup ---
+# Source system-wide environment variables to ensure cache paths are set
+if [ -f /etc/environment ]; then
+    echo "--- Sourcing /etc/environment for cache paths ---"
+    export $(grep -v '^#' /etc/environment | xargs)
+else
+    echo "[WARNING] /etc/environment not found. Cache paths may not be set correctly."
+fi
+
+# Activate Python virtual environment
 echo "--- Activating venv ---"
 source backend/.venv/bin/activate
 
-# 1. Start the vLLM Server
-# echo "--- Starting local vLLM server in the background (port 8888) ---"
-# # Assumes vLLM is installed in the global python environment or a sourced venv
-# python -m vllm.entrypoints.openai.api_server \
-#     --model Qwen/Qwen-VL-Chat \
-#     --host 0.0.0.0 \
-#     --port 8888 > vllm_server.log 2>&1 &
-# VLLM_PID=$!
-# echo "vLLM server started with PID: $VLLM_PID. Logs will be in vllm_server.log"
-# sleep 15 # Give the model time to load
-
-# 2. Start the FastAPI Backend
+# --- Start Services ---
+# Start the FastAPI Backend
 echo "--- Starting FastAPI backend ---"
 export APP_ENV=dev
+export PROJECT_ROOT=$(pwd) # Export for config loading
 
-uv wfc-serve > logs/backend_server.log 2>&1 &
+uvicorn --host 0.0.0.0 --port 8000 --reload app.main:app > logs/backend_server.log 2>&1 &
 BACKEND_PID=$!
 echo "FastAPI backend started with PID: $BACKEND_PID. Logs will be in logs/backend_server.log"
-sleep 5 # Give the backend a moment to start up
+sleep 15 # Give the backend and model time to start up
 
-# 3. Start the Next.js Frontend
+# Start the Next.js Frontend
 echo "--- Starting Next.js frontend ---"
 cd frontend
 npm run dev
 
 # Call cleanup when the frontend process exits
-cleanup 
+cleanup
