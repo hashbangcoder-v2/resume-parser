@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional, List
+from enum import Enum
 
 # Job Schemas
 class JobBase(BaseModel):
@@ -17,7 +18,7 @@ class Job(JobBase):
     class Config:
         orm_mode = True
 
-# Candidate Schemas
+# Candidate Schemas 
 class CandidateBase(BaseModel):
     name: str
     email: str
@@ -32,6 +33,17 @@ class Candidate(CandidateBase):
 
     class Config:
         orm_mode = True
+
+# LLM Schemas
+class LLMOutcome(str, Enum):
+    SHORTLISTED = "Shortlisted"
+    REJECTED = "Rejected"
+    NEEDS_REVIEW = "Needs Review"
+    FAILED = "Failed"
+
+class LLMResponse(BaseModel):
+    outcome: LLMOutcome
+    reason: str
 
 # Application Schemas
 class ApplicationBase(BaseModel):

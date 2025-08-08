@@ -1,0 +1,245 @@
+2025-07-30 08:43:28 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 08:43:29 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 08:44:13 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 08:44:22 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 08:44:31 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 08:44:37 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 08:44:49 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 08:45:05 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 08:45:23 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 08:45:26 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 08:46:25 | INFO     | app.config:get_config:16 - Loading configuration for environment: dev
+2025-07-30 08:46:25 | INFO     | app.config:get_config:25 - Configuration loaded successfully.
+2025-07-30 08:46:25 | INFO     | app.routers.upload:upload_files:28 - Uploading 1 files for job: Senior Software Engineer
+2025-07-30 08:46:25 | ERROR    | app.routers.upload:upload_files:58 - Failed to process COMSOL_ReferenceManual.pdf with LLM: Unable to get page count. Is poppler installed and in PATH?
+2025-07-30 08:46:45 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 08:46:45 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 08:47:08 | INFO     | app.config:get_config:16 - Loading configuration for environment: dev
+2025-07-30 08:47:08 | INFO     | app.config:get_config:25 - Configuration loaded successfully.
+2025-07-30 08:47:08 | INFO     | app.routers.upload:upload_files:28 - Uploading 1 files for job: Senior Software Engineer
+2025-07-30 08:47:08 | ERROR    | app.routers.upload:upload_files:58 - Failed to process COMSOL_ReferenceManual.pdf with LLM: Unable to get page count. Is poppler installed and in PATH?
+2025-07-30 08:48:26 | INFO     | app.config:get_config:16 - Loading configuration for environment: dev
+2025-07-30 08:48:26 | INFO     | app.config:get_config:25 - Configuration loaded successfully.
+2025-07-30 08:48:26 | INFO     | app.routers.upload:upload_files:28 - Uploading 1 files for job: Senior Software Engineer
+2025-07-30 08:48:26 | ERROR    | app.routers.upload:upload_files:58 - Failed to process COMSOL_ReferenceManual.pdf with LLM: Unable to get page count. Is poppler installed and in PATH?
+2025-07-30 08:49:40 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 08:49:45 | INFO     | app.config:get_config:16 - Loading configuration for environment: dev
+2025-07-30 08:49:45 | INFO     | app.config:get_config:25 - Configuration loaded successfully.
+2025-07-30 08:49:45 | INFO     | app.routers.upload:upload_files:28 - Uploading 1 files for job: Senior Software Engineer
+2025-07-30 08:49:45 | ERROR    | app.routers.upload:upload_files:58 - Failed to process COMSOL_ReferenceManual.pdf with LLM: Unable to get page count. Is poppler installed and in PATH?
+2025-07-30 09:30:44 | INFO     | app.config:get_config:16 - Loading configuration for environment: dev
+2025-07-30 09:30:44 | INFO     | app.config:get_config:25 - Configuration loaded successfully.
+2025-07-30 09:30:44 | INFO     | app.routers.upload:upload_files:28 - Uploading 1 files for job: Senior Software Engineer
+2025-07-30 09:32:38 | INFO     | app.routers.upload:upload_files:54 - Converted COMSOL_ReferenceManual.pdf to 2118 images.
+2025-07-30 09:32:38 | ERROR    | app.routers.upload:upload_files:58 - Failed to process COMSOL_ReferenceManual.pdf with LLM: Missing key APP_ENV
+    full_key: APP_ENV
+    object_type=dict
+2025-07-30 09:32:38 | WARNING  | app.routers.upload:upload_files:69 - Skipping duplicate application for COMSOL_ReferenceManual@example.com to Senior Software Engineer
+2025-07-30 09:32:41 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 09:33:14 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 09:33:31 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 09:33:35 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 09:35:29 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 09:35:45 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 09:36:15 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 09:37:26 | INFO     | app.config:get_config:16 - Loading configuration for environment: dev
+2025-07-30 09:37:26 | INFO     | app.config:get_config:25 - Configuration loaded successfully.
+2025-07-30 09:37:26 | INFO     | app.routers.upload:upload_files:28 - Uploading 1 files for job: Senior Software Engineer
+2025-07-30 09:37:26 | INFO     | app.routers.upload:upload_files:44 - Checking if candidate exists by email or resume hash: COMSOL_ReferenceManual@example.com 5d6e1e98d7aa6e3d375914ce35d0dc939a933abbac454a2b753158cf091cdfd6
+2025-07-30 09:37:26 | INFO     | app.routers.upload:upload_files:47 - Candidate found: Comsol Referencemanual COMSOL_ReferenceManual@example.com
+2025-07-30 09:39:21 | INFO     | app.routers.upload:upload_files:60 - Converted COMSOL_ReferenceManual.pdf to 2118 images.
+2025-07-30 09:39:21 | ERROR    | app.routers.upload:upload_files:64 - Failed to process COMSOL_ReferenceManual.pdf with LLM: Missing key APP_ENV
+    full_key: APP_ENV
+    object_type=dict
+2025-07-30 09:39:21 | WARNING  | app.routers.upload:upload_files:75 - Skipping duplicate application for COMSOL_ReferenceManual@example.com to Senior Software Engineer
+2025-07-30 10:19:55 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 10:20:05 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 10:20:46 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 10:22:58 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 10:22:59 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 10:23:35 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 10:23:57 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 10:23:59 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 10:49:18 | INFO     | app.config:get_config:16 - Loading configuration for environment: dev
+2025-07-30 10:49:18 | INFO     | app.config:get_config:25 - Configuration loaded successfully.
+2025-07-30 10:49:18 | INFO     | app.routers.upload:upload_files:28 - Uploading 1 files for job: Senior Software Engineer
+2025-07-30 10:49:18 | INFO     | app.routers.upload:upload_files:44 - Checking if candidate exists by email or resume hash: KiaEV6@example.com 737a43dab1f2b31fbaaa3caa2e36128aebac65878b11c07f5776487854ec943b
+2025-07-30 10:49:19 | INFO     | app.routers.upload:upload_files:50 - Candidate not found: KiaEV6@example.com 737a43dab1f2b31fbaaa3caa2e36128aebac65878b11c07f5776487854ec943b
+2025-07-30 10:49:19 | INFO     | app.routers.upload:upload_files:59 - Converted KiaEV6.pdf to 1 images.
+2025-07-30 10:49:19 | ERROR    | app.routers.upload:upload_files:63 - Failed to process KiaEV6.pdf with LLM: Missing key APP_ENV
+    full_key: APP_ENV
+    object_type=dict
+2025-07-30 10:50:19 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 10:50:25 | INFO     | app.config:get_config:16 - Loading configuration for environment: dev
+2025-07-30 10:50:25 | INFO     | app.config:get_config:25 - Configuration loaded successfully.
+2025-07-30 10:50:25 | INFO     | app.routers.upload:upload_files:28 - Uploading 1 files for job: Senior Software Engineer
+2025-07-30 10:50:25 | INFO     | app.routers.upload:upload_files:44 - Checking if candidate exists by email or resume hash: KiaEV6@example.com 737a43dab1f2b31fbaaa3caa2e36128aebac65878b11c07f5776487854ec943b
+2025-07-30 10:52:28 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 10:59:25 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 10:59:49 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:00:39 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:01:12 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:01:17 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:01:52 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:01:55 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:02:08 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:02:19 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:02:20 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:02:46 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:02:55 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:03:07 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:03:09 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:03:44 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:03:52 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:03:55 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:04:23 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:04:31 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:04:36 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:04:41 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:04:48 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:04:50 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:04:59 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:05:01 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:05:17 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:05:33 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:05:38 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:06:36 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:06:48 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:08:32 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:13:20 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:23:05 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:23:41 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:23:52 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:25:14 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:25:20 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:26:48 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:28:01 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:28:25 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:28:31 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 11:29:25 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-07-30 12:00:45 | INFO     | app.config:get_config:16 - Loading configuration for environment: dev
+2025-07-30 12:00:45 | INFO     | app.config:get_config:25 - Configuration loaded successfully.
+2025-07-30 12:00:45 | INFO     | app.routers.upload:upload_files:31 - Uploading 1 files for job: Senior Software Engineer
+2025-07-30 12:00:45 | INFO     | app.routers.upload:upload_files:47 - Checking if candidate exists by email or resume hash: KiaEV6@example.com 737a43dab1f2b31fbaaa3caa2e36128aebac65878b11c07f5776487854ec943b
+2025-07-30 12:01:30 | INFO     | app.config:get_config:16 - Loading configuration for environment: dev
+2025-07-30 12:01:30 | INFO     | app.config:get_config:25 - Configuration loaded successfully.
+2025-07-30 12:01:30 | INFO     | app.routers.upload:upload_files:31 - Uploading 1 files for job: Senior Software Engineer
+2025-07-30 12:01:30 | INFO     | app.routers.upload:upload_files:47 - Checking if candidate exists by email or resume hash: KiaEV6@example.com 737a43dab1f2b31fbaaa3caa2e36128aebac65878b11c07f5776487854ec943b
+2025-07-30 12:01:30 | WARNING  | app.routers.upload:upload_files:67 - Candidate not found: KiaEV6@example.com 737a43dab1f2b31fbaaa3caa2e36128aebac65878b11c07f5776487854ec943b
+2025-07-30 12:01:30 | INFO     | app.routers.upload:upload_files:76 - Converted KiaEV6.pdf to 1 images.
+2025-07-30 12:01:30 | ERROR    | app.routers.upload:upload_files:87 - Failed to process KiaEV6.pdf with LLM: name 'os' is not defined
+2025-07-30 12:02:52 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 15:58:09 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 15:58:10 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 20:32:44 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 20:32:45 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 20:32:54 | INFO     | app.config:get_config:16 - Loading configuration for environment: dev
+2025-08-01 20:32:54 | INFO     | app.config:get_config:25 - Configuration loaded successfully.
+2025-08-01 20:32:54 | INFO     | app.routers.upload:upload_files:31 - Uploading 1 files for job: Senior Software Engineer
+2025-08-01 20:32:54 | INFO     | app.routers.upload:upload_files:47 - Checking if candidate exists by email or resume hash: KiaEV6@example.com 737a43dab1f2b31fbaaa3caa2e36128aebac65878b11c07f5776487854ec943b
+2025-08-01 20:32:54 | WARNING  | app.routers.upload:upload_files:67 - Candidate not found: KiaEV6@example.com 737a43dab1f2b31fbaaa3caa2e36128aebac65878b11c07f5776487854ec943b
+2025-08-01 20:32:54 | INFO     | app.routers.upload:upload_files:76 - Converted KiaEV6.pdf to 1 images.
+2025-08-01 20:34:15 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 20:34:30 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 20:34:34 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 20:34:41 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 20:35:04 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 20:35:06 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 20:35:08 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 20:35:11 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 20:35:17 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 20:35:30 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 20:35:43 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 20:36:03 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 20:36:09 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 20:36:30 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 20:36:32 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 20:46:27 | INFO     | app.config:get_config:16 - Loading configuration for environment: dev
+2025-08-01 20:46:27 | INFO     | app.config:get_config:25 - Configuration loaded successfully.
+2025-08-01 20:46:27 | INFO     | app.routers.upload:upload_files:31 - Uploading 1 files for job: Senior Software Engineer
+2025-08-01 20:46:27 | INFO     | app.routers.upload:upload_files:47 - Checking if candidate exists by resume hash: 737a43dab1f2b31fbaaa3caa2e36128aebac65878b11c07f5776487854ec943b
+2025-08-01 20:46:27 | WARNING  | app.routers.upload:upload_files:67 - Candidate not found: 737a43dab1f2b31fbaaa3caa2e36128aebac65878b11c07f5776487854ec943b
+2025-08-01 20:46:51 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 20:50:25 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 20:52:59 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 20:54:15 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 20:54:24 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 20:54:25 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 20:54:28 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 20:54:36 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 20:54:38 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 21:08:03 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 21:08:25 | INFO     | app.config:get_config:16 - Loading configuration for environment: dev
+2025-08-01 21:08:25 | INFO     | app.config:get_config:25 - Configuration loaded successfully.
+2025-08-01 21:08:25 | INFO     | app.routers.upload:upload_files:31 - Uploading 1 files for job: Senior Software Engineer
+2025-08-01 21:08:25 | INFO     | app.routers.upload:upload_files:49 - Converted KiaEV6.pdf to 1 images.
+2025-08-01 21:08:25 | INFO     | app.routers.upload:upload_files:67 - Checking if candidate exists by resume hash: 737a43dab1f2b31fbaaa3caa2e36128aebac65878b11c07f5776487854ec943b
+2025-08-01 21:08:25 | WARNING  | app.routers.upload:upload_files:87 - Candidate not found: 737a43dab1f2b31fbaaa3caa2e36128aebac65878b11c07f5776487854ec943b
+2025-08-01 21:08:38 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 21:08:40 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 21:08:46 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 21:08:49 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 21:08:54 | INFO     | app.config:get_config:16 - Loading configuration for environment: dev
+2025-08-01 21:08:54 | INFO     | app.config:get_config:25 - Configuration loaded successfully.
+2025-08-01 21:08:54 | INFO     | app.routers.upload:upload_files:31 - Uploading 1 files for job: Senior Software Engineer
+2025-08-01 21:08:54 | INFO     | app.routers.upload:upload_files:49 - Converted KiaEV6.pdf to 1 images.
+2025-08-01 21:08:54 | INFO     | app.routers.upload:upload_files:67 - Checking if candidate exists by resume hash: 737a43dab1f2b31fbaaa3caa2e36128aebac65878b11c07f5776487854ec943b
+2025-08-01 21:08:54 | WARNING  | app.routers.upload:upload_files:87 - Candidate not found: 737a43dab1f2b31fbaaa3caa2e36128aebac65878b11c07f5776487854ec943b
+2025-08-01 21:09:32 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 21:09:38 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 21:10:40 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 21:11:03 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 21:11:06 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 21:11:10 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 22:01:08 | INFO     | app.config:get_config:16 - Loading configuration for environment: dev
+2025-08-01 22:01:08 | INFO     | app.config:get_config:25 - Configuration loaded successfully.
+2025-08-01 22:01:08 | INFO     | app.routers.upload:upload_files:31 - Uploading 1 files for job: Senior Software Engineer
+2025-08-01 22:01:08 | INFO     | app.routers.upload:upload_files:49 - Converted KiaEV6.pdf to 1 images.
+2025-08-01 22:01:08 | INFO     | app.routers.upload:upload_files:67 - Checking if candidate exists by resume hash: 737a43dab1f2b31fbaaa3caa2e36128aebac65878b11c07f5776487854ec943b
+2025-08-01 22:01:08 | WARNING  | app.routers.upload:upload_files:87 - Candidate not found: 737a43dab1f2b31fbaaa3caa2e36128aebac65878b11c07f5776487854ec943b
+2025-08-01 22:03:07 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 22:03:13 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 22:03:16 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 22:03:24 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 22:03:30 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 22:04:15 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 22:04:47 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 22:04:57 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 22:05:14 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 22:05:18 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 22:05:22 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 22:05:27 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 22:05:43 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 22:05:55 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 22:06:37 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 22:07:00 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 22:07:02 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 22:07:06 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 22:07:10 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 22:07:20 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 22:07:22 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 22:07:24 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 22:07:29 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 22:07:31 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 22:07:50 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 22:07:58 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 22:08:06 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-01 22:12:41 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-04 09:43:27 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-04 12:39:39 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-04 12:45:50 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-04 12:47:45 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-04 12:47:52 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-04 14:20:32 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-04 14:20:39 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-04 14:25:02 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-04 14:25:09 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-04 14:27:41 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-04 14:27:48 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-08 13:10:07 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-08 13:10:14 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-08 13:12:49 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-08 13:13:18 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-08 13:16:57 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-08 13:17:16 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-08 13:42:35 | INFO     | app.logger:setup_logging:34 - Logger setup complete.

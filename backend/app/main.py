@@ -8,12 +8,19 @@ import uvicorn
 
 from app import models
 from app.config import get_config
+from app.logger import setup_logging
+from app.llm_client import initialize_vllm
 
 cfg = get_config()
+setup_logging(cfg)
 
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+# Initialize vLLM model on startup if in dev mode
+if cfg.app.env != "prod":
+    initialize_vllm(cfg)
 
 # CORS configuration
 app.add_middleware(
@@ -30,27 +37,17 @@ app.include_router(status.router)
 app.include_router(user.router)
 app.include_router(upload.router)
 
+
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the Wheat-From-Chaff API"}
 
 def main():
-    logger = logging.getLogger(__name__)
-    # Set up logging to file for uvicorn stdout and stderr
-    # logging.basicConfig(
-    #     level=cfg.logging.level.upper(),
-    #     format="%(asctime)s %(levelname)s %(message)s",
-    #     handlers=[
-    #         logging.FileHandler("logs/uvicorn_stdout.log"),
-    #         logging.StreamHandler(sys.stdout)
-    #     ]
-    # )
-    logger.info("Starting uvicorn server at %s:%s", cfg.app.host, cfg.app.port)
     uvicorn.run(
         "app.main:app",
         host=cfg.app.host,
         port=cfg.app.port,
-        reload=True,
+        reload=cfg.app.env == "dev",  # Reload only in dev
         log_config=None,
         access_log=True,
     )

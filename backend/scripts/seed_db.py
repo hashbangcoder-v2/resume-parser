@@ -74,6 +74,12 @@ def seed_database():
     Base.metadata.create_all(bind=engine)
 
     db = next(get_db())
+    # Wipe all data in mock db
+    # Delete from Application first (depends on Candidate and Job), then Candidate, then Job
+    db.query(Application).delete()
+    db.query(Candidate).delete()
+    db.query(Job).delete()
+    db.commit()
 
     try:
         # Add Jobs

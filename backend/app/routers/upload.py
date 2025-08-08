@@ -1,8 +1,8 @@
-import logging
+
 import hashlib
 from pathlib import Path
 from typing import List
-from fastapi import APIRouter, File, UploadFile, Depends, HTTPException
+from fastapi import APIRouter, File, UploadFile, Depends, HTTPException, Form
 from sqlalchemy.orm import Session
 from omegaconf import DictConfig
 from app.config import get_config
@@ -11,77 +11,103 @@ from app.db import get_db
 from pdf2image import convert_from_bytes
 from app import llm_client
 from azure.storage.blob import BlobServiceClient
+from app.logger import logger
 
-logger = logging.getLogger(__name__)
+
+from app.process import reevaluate_candidate, evaluate_candidate
 
 router = APIRouter(
     prefix="/api/upload",
     tags=["upload"],
 )
 
-@router.post("/")
+@router.post("")
 async def upload_files(
     pdf_files: List[UploadFile] = File(...), 
+    job_title: str = Form(...),
     db_session: Session = Depends(get_db),
-    cfg: DictConfig = Depends(get_config)
+    cfg: DictConfig = Depends(get_config)    
 ):
+    logger.info(f"Uploading {len(pdf_files)} files for job: {job_title}")
     processed_files = []
     
-    for file in pdf_files:
-        if not (file.content_type == "application/pdf" and file.filename and file.filename.lower().endswith(".pdf")):
-            logger.warning(f"Rejected invalid file: {file.filename}")
+    for _file in pdf_files:
+        if not (_file.content_type == "application/pdf" and _file.filename and _file.filename.lower().endswith(".pdf")):
+            logger.warning(f"Rejected invalid file: {_file.filename}")
             continue
         
-        file_bytes = await file.read()
+        file_bytes = await _file.read()
         resume_hash = hashlib.sha256(file_bytes).hexdigest()
 
         # In a real app, you would parse the resume to get the email.
         # For now, we'll generate a placeholder email from the filename.
-        email = f"{Path(file.filename).stem}@example.com"
+        # email = f"{Path(file.filename).stem}@example.com"
 
-        # Check if candidate exists by email or resume hash
-        candidate = crud.get_candidate_by_email(db_session, email=email)
-        if not candidate:
-            # In a real app, name would be parsed from the resume.
-            name = Path(file.filename).stem.replace("_", " ").title()
-            candidate_in = schemas.CandidateCreate(name=name, email=email, resume_hash=resume_hash)
-            candidate = crud.create_candidate(db_session, candidate=candidate_in)
-        
         # --- LLM Analysis ---
         try:
             images = convert_from_bytes(file_bytes)
-            logger.info(f"Converted {file.filename} to {len(images)} images.")
-            llm_response = await llm_client.get_model_response(cfg, images)
-            analysis_result = llm_response.get('choices', [{}])[0].get('message', {}).get('content', 'AI analysis pending.')
+            logger.info(f"Converted {_file.filename} to {len(images)} images.")
+            
+            job = crud.get_job_by_title(db_session, title=job_title)
+            if not job:
+                raise HTTPException(status_code=404, detail=f"Job '{job_title}' not found.")
+
+            llm_response = await llm_client.get_model_response(cfg, images, job.description)
+            analysis_result = llm_response.reason
+            final_status = llm_response.outcome.value
+
         except Exception as e:
-            logger.error(f"Failed to process {file.filename} with LLM: {e}")
+            logger.error(f"Failed to process {_file.filename} with LLM: {e}")
             analysis_result = "Error during AI analysis."
+            final_status = "FAILED"
         # --- End LLM Analysis ---
 
-        # For now, we assume a default job title. This could be passed as a parameter.
-        job_title = "Senior Software Engineer"
-        job = crud.get_job_by_title(db_session, title=job_title)
-        if not job:
-            raise HTTPException(status_code=404, detail=f"Job '{job_title}' not found.")
 
+        # Check if candidate exists by email or resume hash
+        logger.info(f"Checking if candidate exists by resume hash: {resume_hash}")
+        candidate = crud.get_candidates(db_session, resume_hash=resume_hash)
+        if candidate:
+            logger.warning(f"Candidate {candidate.name} already exists: {candidate.email} {candidate.resume_hash}")            
+            jobs_applied = crud.get_jobs_applied_by_candidate(db_session, candidate_id=candidate.id)
+            logger.warning(f"Candidate {candidate.name} has already applied to {len(jobs_applied)} jobs: {jobs_applied}")
+            if jobs_applied is not None and job_title in [job.title for job in list(jobs_applied)]:
+                logger.info(f"Skipping candidate {candidate.name} because they have already applied to this job")
+                continue    
+            else:
+                logger.info(f"Re-evaluating candidate {candidate.name} for this job: {job_title}")
+                job = crud.get_job_by_title(db_session, title=job_title)
+                if not job:
+                    logger.warning(f"Job '{job_title}' not found when re-evaluating candidate.")
+                    raise HTTPException(status_code=404, detail=f"Job '{job_title}' not found.")
+                
+                reevaluate_candidate(cfg, candidate, job.description, file_bytes)
+
+
+        else:
+            logger.warning(f"Candidate not found: {resume_hash}")
+            # Create a new candidat. In a real app, name would be parsed from the resume.
+            name = Path(_file.filename).stem.replace("_", " ").title()
+            candidate_in = schemas.CandidateCreate(name=name, resume_hash=resume_hash)
+            # candidate = crud.create_candidate(db_session, candidate=candidate_in)
+        
         # Check if an application already exists
         application_exists = db_session.query(models.Application).filter_by(candidate_id=candidate.id, job_id=job.id).first()
         if application_exists:
             logger.warning(f"Skipping duplicate application for {candidate.email} to {job.title}")
             continue
 
-        file_url = store_file(cfg, file_bytes, f"{Path(file.filename).stem}_{resume_hash[:8]}.pdf")
+        file_url = store_file(cfg, file_bytes, f"{Path(_file.filename).stem}_{resume_hash[:8]}.pdf")
 
         application_in = schemas.ApplicationCreate(
             job_id=job.id,
             candidate_id=candidate.id,
             status="Needs Review",
-            final_status="Needs Review",
+            final_status=final_status,
             reason=analysis_result,
             file_url=file_url,
         )
         crud.create_application(db_session, application=application_in)
-        processed_files.append(file.filename)
+        processed_files.append(_file.filename)
             
     if not processed_files:
         return {"message": "No new valid PDF files were processed."}, 400
@@ -91,8 +117,10 @@ async def upload_files(
         "processed_files": processed_files
     }
 
+
+
 def store_file(cfg: DictConfig, file_bytes: bytes, filename: str) -> str:
-    if cfg.APP_ENV == "prod":
+    if cfg.app.env == "prod":
         return upload_to_azure_blob(cfg, file_bytes, filename)
     else:
         return str(store_pdf_file_locally(cfg, file_bytes, filename))

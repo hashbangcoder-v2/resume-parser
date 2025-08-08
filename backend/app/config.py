@@ -2,13 +2,10 @@ from omegaconf import OmegaConf, DictConfig
 import os
 import dotenv
 from pathlib import Path
-import logging
-from functools import lru_cache
+from app.logger import logger
 
-logger = logging.getLogger(__name__)
 dotenv.load_dotenv()
 
-@lru_cache()
 def get_config() -> DictConfig:
     # Load base configuration
     project_root = os.getenv("PROJECT_ROOT")

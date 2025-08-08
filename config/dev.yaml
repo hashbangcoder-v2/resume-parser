@@ -1,6 +1,9 @@
 # Development Overrides
+# This is the development configuration for the backend.
+
 app:
-  host: "127.0.0.1" # Listen on all interfaces for remote access
+  env: "dev"
+  host: "0.0.0.0" # Listen on all interfaces for remote access
   port: 8000
   cors_origins:
     - "http://localhost:3000"
@@ -9,11 +12,17 @@ app:
 
 logging:
   level: "DEBUG"
+  file: "${oc.env:PROJECT_ROOT}/logs/backend_dev.log"
 
 ai_model:
-  endpoint: "http://localhost:8888/v1/models/qwen:7b/completions" # Local vLLM
+  default: "Qwen/Qwen2-7B-Instruct-AWQ"
+  temperature: 0.2
   health_check_interval_seconds: 30
-  health_check_timeout_seconds: 5 # Short timeout for local checks
+  health_check_timeout_seconds: 5  
+  models:
+    - "Qwen/Qwen2-7B-Instruct-AWQ"
+    - "Qwen/Qwen2.5-Omni-7B"
+    - "qwen3"
 
 local_storage:
   path: "${oc.env:PROJECT_ROOT}/uploaded_resumes" 
