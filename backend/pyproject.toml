@@ -17,11 +17,13 @@ dependencies = [
     "Pillow",
     "loguru",
     "vllm>=0.10.0",
+    "flashinfer-python>=0.2.10",
+    "python-dotenv",
 ]
 
 [project.scripts]
-wfc-serve = "backend.app.main:main"
-wfc-db-seed = "backend.scripts.seed_db:seed_database"
+wfc-serve = "app.main:main"
+wfc-db-seed = "scripts.seed_db:seed_database"
 
 [build-system]
 requires = ["setuptools"]

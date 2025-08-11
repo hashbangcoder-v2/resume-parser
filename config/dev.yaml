@@ -10,6 +10,25 @@ app:
     - "http://127.0.0.1:3000"
     - "*" # Allow all for flexible dev
 
+vllm:
+  inference_args:
+    gpu_memory_utilization: 0.5  # Use 30% of total GPU memory (~24GB) for 19GB free
+    max_model_len: 8192
+    enforce_eager: True
+    tensor_parallel_size: 1
+    trust_remote_code: True
+  env_vars:
+    PYTORCH_CUDA_ALLOC_CONF: 'expandable_segments:True,max_split_size_mb:512'
+    CUDA_VISIBLE_DEVICES: 0
+    CUDA_LAUNCH_BLOCKING: 0
+    TORCH_CUDA_ALLOC_SYNC_MIN_VERSION: 1
+    
+    VLLM_USE_TRITON_FLASH_ATTN: 'true'  # Enable flash attention for A100
+    VLLM_WORKER_MULTIPROC_METHOD: 'fork'  # Use fork instead of spawn on Linux
+    VLLM_ATTENTION_BACKEND: 'FLASHINFER'
+    VLLM_NO_USAGE_STATS: 1
+
+  
 logging:
   level: "DEBUG"
   file: "${oc.env:PROJECT_ROOT}/logs/backend_dev.log"
