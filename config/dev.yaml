@@ -28,4 +28,6 @@ local_storage:
   path: "${oc.env:PROJECT_ROOT}/uploaded_resumes" 
 
 database:
-  url: "sqlite:///${oc.env:PROJECT_ROOT}/database/dev_candidates.db"
+  create_if_not_exists: true  
+  directory: "${oc.env:PROJECT_ROOT}/database"
+  url: "sqlite:///${database.directory}/dev_candidates.db"

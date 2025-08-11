@@ -16,6 +16,7 @@ def get_config() -> DictConfig:
     logger.info(f"Loading configuration for environment: {env}")
     env_conf_path = Path(project_root) / 'config' / f'{env}.yaml'
     base_config_path = Path(project_root) / 'config' / 'config.yaml'
+    logger.warning(env_conf_path)
     if env_conf_path.exists() and base_config_path.exists():
         base_config = OmegaConf.load(base_config_path)
         env_conf = OmegaConf.load(env_conf_path)
