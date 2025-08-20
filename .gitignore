@@ -4,3 +4,5 @@ database/*
 startup.sh
 setup.sh
 *.pdf
+*.log
+launch.json

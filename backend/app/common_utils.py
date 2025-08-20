@@ -13,6 +13,6 @@ def image_to_base64(image: Image.Image) -> str:
 @lru_cache(maxsize=1)
 def get_system_prompt() -> str:
     # This path is relative to the current file, which is more robust.
-    prompt_path = Path(__file__).parent / "prompts" / "resume_analyzer.txt"
+    prompt_path = Path(__file__).parent / "prompts" / "system_prompt.txt"
     with open(prompt_path, "r") as f:
         return f.read()

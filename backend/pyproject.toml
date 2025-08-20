@@ -19,6 +19,8 @@ dependencies = [
     "vllm>=0.10.0",
     "flashinfer-python>=0.2.10",
     "python-dotenv",
+    "torch>=2.0.0",
+    "xformers>=0.0.20",
 ]
 
 [project.scripts]

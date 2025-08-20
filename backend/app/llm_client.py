@@ -7,16 +7,10 @@ from PIL import Image
 from app.logger import logger
 from app.schemas import LLMResponse
 from app.common_utils import get_system_prompt, image_to_base64
+from vllm import LLM, SamplingParams
+from app.craft_prompt import generate_llm_prompt
 
-# Conditional imports for vLLM
-try:
-    from vllm import LLM, SamplingParams
-    VLLM_AVAILABLE = True    
-except ImportError:
-    VLLM_AVAILABLE = False
-    raise ImportError("vLLM is not installed. Please install it with `pip install vllm`.")
 
-# Global variable to hold the loaded vLLM model
 vllm_model = None
 
 def initialize_vllm(cfg: DictConfig):
@@ -25,7 +19,6 @@ def initialize_vllm(cfg: DictConfig):
     """
     global vllm_model
         
-    # Set environment variables from config BEFORE any vLLM operations
     logger.info("🔧 Setting vLLM environment variables from config:")
     import os
     if hasattr(cfg.vllm, 'env_vars'):
@@ -39,44 +32,21 @@ def initialize_vllm(cfg: DictConfig):
         logger.error(f"vLLM model '{model_name}' is not supported. Please check the supported models in dev.yaml.")
         return    
     
-    # Clear CUDA cache and check memory
     try:
-        import torch
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-            # Get memory info
-            gpu_props = torch.cuda.get_device_properties(0)
-            memory_total = gpu_props.total_memory / 1e9
-            memory_allocated = torch.cuda.memory_allocated(0) / 1e9
-            memory_cached = torch.cuda.memory_reserved(0) / 1e9
-            memory_free = memory_total - memory_cached
-            
-            logger.info(f"🔍 GPU Memory Status:")
-            logger.info(f"  Total: {memory_total:.2f} GB")
-            logger.info(f"  Allocated: {memory_allocated:.2f} GB")
-            logger.info(f"  Cached: {memory_cached:.2f} GB") 
-            logger.info(f"  Free: {memory_free:.2f} GB")
-                
-    except Exception as mem_error:
-        logger.warning(f"Could not check GPU memory: {mem_error}")
-    
-    try:
-        logger.info(f"🚀 Loading vLLM model: {model_name}")
-        
-        # Get vLLM configuration from dev.yaml
+        logger.info(f"🚀 Loading vLLM model: {model_name}")                
         vllm_inference_args = cfg.vllm.inference_args
         
         vllm_config = {
             "model": model_name,
-            "quantization": "awq",  # Use standard AWQ, not awq_marlin
             "gpu_memory_utilization": vllm_inference_args.gpu_memory_utilization,
             "max_model_len": vllm_inference_args.max_model_len,
             "enforce_eager": vllm_inference_args.enforce_eager,
             "tensor_parallel_size": vllm_inference_args.tensor_parallel_size,
             "trust_remote_code": vllm_inference_args.trust_remote_code,
-            "disable_custom_all_reduce": True,  # Stability improvement
-            "max_num_seqs": 32,  # Conservative concurrent sequences
-            "block_size": 16,  # Memory block size
+            "disable_custom_all_reduce": True,  
+            "max_num_seqs": vllm_inference_args.get("max_num_seqs", 4),     
+            "block_size": 16,  
+            "limit_mm_per_prompt": vllm_inference_args.get("limit_mm_per_prompt", {"image": 3}),  
         }
         
         logger.info("⚙️  vLLM Configuration:")
@@ -96,98 +66,52 @@ async def get_model_response(
     cfg: DictConfig, 
     images: List[Image.Image], 
     job_description: str, 
-    model_name: Optional[str] = None
-) -> LLMResponse:
-    if model_name is None:
-        model_name = cfg.ai_model.default
-
+) -> LLMResponse:    
     if cfg.app.env == "prod":
         return await query_azure_ml_endpoint() 
     else:
-        return await query_vllm(cfg, images, job_description, model_name)
+        return await query_vllm(cfg, images, job_description)
 
 
 
 async def query_vllm(
     cfg: DictConfig, 
     images: List[Image.Image], 
-    job_description: str, 
-    model_name: str
+    job_description: str,     
 ) -> LLMResponse:
     """
     Performs offline inference using the pre-loaded vLLM model.
     """
     if not vllm_model:
         logger.error("vLLM model is not available for inference.")
-        return LLMResponse(outcome="Needs Review", reason="vLLM model not loaded.")
-
-    system_prompt = get_system_prompt()
-    user_prompt = f"""
-    Here is the job description:
-    ---
-    {job_description}
-    ---
-    Analyze the attached resume and provide your assessment.
-    """
+        return LLMResponse(outcome="Failed", reason="vLLM model not loaded.")
     
-    conversation = [
-        {"role": "system", "content": system_prompt},
-        {
-            "role": "user", 
-            "content": [
-                {"type": "text", "text": user_prompt},
-                *[{"type": "image_url", "image_url": {"url": f"data:image/png;base64,{image_to_base64(img)}"}} for img in images]
-            ]
-        }
-    ]
-
-    try:
-        # vLLM uses a different prompt format; we need to apply the chat template
-        prompt = vllm_model.llm_engine.tokenizer.apply_chat_template(
-            conversation=conversation, 
-            tokenize=False, 
-            add_generation_prompt=True
-        )
-        
-        # Adaptive max_tokens based on model's max_model_len
-        model_max_len = getattr(vllm_model.llm_engine.model_config, 'max_model_len', 2048)
-        # Reserve space for input prompt (estimate ~500 tokens for resume analysis)
+    try:                
+        model_max_len = vllm_model.llm_engine.model_config.max_model_len
         max_response_tokens = min(1500, max(512, model_max_len - 500))
         
         sampling_params = SamplingParams(
-            temperature=cfg.ai_model.temperature,
-            max_tokens=max_response_tokens,
-            stop=["</s>", "<|endoftext|>"],  # Add proper stop tokens
-            repetition_penalty=1.1,  # Prevent repetitive outputs
+            temperature=cfg.vllm.inference_args.temperature,
+            max_tokens=max_response_tokens,            
+            repetition_penalty=cfg.vllm.inference_args.repetition_penalty,
         )
 
-        logger.info(f"Generating response with max_tokens={max_response_tokens}")
-        outputs = vllm_model.generate(prompt, sampling_params)
-        
-        # Assuming the first output is the one we want
-        llm_content = outputs[0].outputs[0].text.strip()
-        logger.debug(f"Raw LLM response: {llm_content[:200]}...")
-        
-        # Try to extract JSON from the response if it's wrapped in text
-        if not llm_content.startswith('{'):
-            # Look for JSON content within the response
-            import re
-            json_match = re.search(r'\{.*\}', llm_content, re.DOTALL)
-            if json_match:
-                llm_content = json_match.group(0)
-            else:
-                logger.warning("No JSON found in response, attempting to parse as-is")
+        logger.info(f"Generating response with {len(images)} images and max_tokens={max_response_tokens}")
+        multimodal_input = generate_llm_prompt(images, job_description)
+
+        outputs = vllm_model.generate([multimodal_input], sampling_params)
+        llm_content = outputs[0].outputs[0].text
         
         parsed_content = json.loads(llm_content)
-        
         validated_response = LLMResponse.model_validate(parsed_content)
         return validated_response
 
     except json.JSONDecodeError as e:
         logger.error(f"Error parsing JSON from vLLM response: {e}")
+        logger.error(f"Raw response: {llm_content[:500]}...")
         return LLMResponse(outcome="Failed", reason="Error parsing AI response.")
     except Exception as e:
-        logger.error(f"An unexpected error occurred during vLLM inference: {e}")
+        logger.error(f"An unexpected error occurred during vLLM inference: {e}", exc_info=True)
         return LLMResponse(outcome="Failed", reason="An unexpected error occurred during analysis.")
 
 

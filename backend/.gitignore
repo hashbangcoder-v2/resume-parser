@@ -7,4 +7,5 @@ local.settings.json
 # Ignore pycache
 __pycache__/
 *.pyc 
-
+*.log
+.uv-cache/

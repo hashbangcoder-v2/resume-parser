@@ -14,7 +14,6 @@ class JobCreate(JobBase):
 class Job(JobBase):
     id: int
     created_at: datetime
-
     class Config:
         orm_mode = True
 
@@ -41,7 +40,10 @@ class LLMOutcome(str, Enum):
     NEEDS_REVIEW = "Needs Review"
     FAILED = "Failed"
 
+
 class LLMResponse(BaseModel):
+    name: str
+    email: str
     outcome: LLMOutcome
     reason: str
 

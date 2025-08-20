@@ -39,9 +39,6 @@ async def upload_files(
         file_bytes = await _file.read()
         resume_hash = hashlib.sha256(file_bytes).hexdigest()
 
-        # In a real app, you would parse the resume to get the email.
-        # For now, we'll generate a placeholder email from the filename.
-        # email = f"{Path(file.filename).stem}@example.com"
 
         # --- LLM Analysis ---
         try:
@@ -54,16 +51,24 @@ async def upload_files(
 
             llm_response = await llm_client.get_model_response(cfg, images, job.description)
             analysis_result = llm_response.reason
-            final_status = llm_response.outcome.value
+            final_status = schemas.LLMOutcome(llm_response.outcome).value
 
         except Exception as e:
-            logger.error(f"Failed to process {_file.filename} with LLM: {e}")
+            if isinstance(e, OSError) and "poppler" in str(e).lower():
+                logger.error(f"Poppler is not installed or not found in PATH. Please install poppler to enable PDF to image conversion. Error: {e}")
+                raise e
+            
+            logger.error(f"Failed to process {_file.filename} with LLM: {e}", exc_info=True)
             analysis_result = "Error during AI analysis."
-            final_status = "FAILED"
-        # --- End LLM Analysis ---
+            final_status = schemas.LLMOutcome.FAILED.value
 
 
-        # Check if candidate exists by email or resume hash
+        if final_status != schemas.LLMOutcome.FAILED.value:
+            name = llm_response.name
+            email = llm_response.email
+            logger.info(f"Extracted name: {name} and email: {email} from {_file.filename}")
+            
+
         logger.info(f"Checking if candidate exists by resume hash: {resume_hash}")
         candidate = crud.get_candidates(db_session, resume_hash=resume_hash)
         if candidate:
@@ -85,9 +90,9 @@ async def upload_files(
 
         else:
             logger.warning(f"Candidate not found: {resume_hash}")
-            # Create a new candidat. In a real app, name would be parsed from the resume.
-            name = Path(_file.filename).stem.replace("_", " ").title()
-            candidate_in = schemas.CandidateCreate(name=name, resume_hash=resume_hash)
+            
+            
+            candidate_in = schemas.CandidateCreate(name=name, email=email, resume_hash=resume_hash)
             # candidate = crud.create_candidate(db_session, candidate=candidate_in)
         
         # Check if an application already exists
@@ -101,7 +106,7 @@ async def upload_files(
         application_in = schemas.ApplicationCreate(
             job_id=job.id,
             candidate_id=candidate.id,
-            status="Needs Review",
+            status=schemas.ApplicationStatus.NEEDS_REVIEW,
             final_status=final_status,
             reason=analysis_result,
             file_url=file_url,
