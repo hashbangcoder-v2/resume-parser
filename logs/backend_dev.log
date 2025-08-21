@@ -377,3 +377,119 @@
 2025-08-20 23:57:12 | INFO     | app.llm_client:initialize_vllm:51 -   max_num_seqs: 4
 2025-08-20 23:57:12 | INFO     | app.llm_client:initialize_vllm:51 -   limit_mm_per_prompt: {'image': 3}
 2025-08-20 23:57:45 | INFO     | app.llm_client:initialize_vllm:54 - vLLM model loaded successfully!
+2025-08-21 00:07:43 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-21 00:07:49 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-21 00:07:49 | INFO     | app.llm_client:initialize_vllm:20 - Setting vLLM environment variables from config:
+2025-08-21 00:07:49 | INFO     | app.llm_client:initialize_vllm:25 -   PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True,max_split_size_mb:512
+2025-08-21 00:07:49 | INFO     | app.llm_client:initialize_vllm:25 -   CUDA_VISIBLE_DEVICES=0
+2025-08-21 00:07:49 | INFO     | app.llm_client:initialize_vllm:25 -   CUDA_LAUNCH_BLOCKING=0
+2025-08-21 00:07:49 | INFO     | app.llm_client:initialize_vllm:25 -   TORCH_CUDA_ALLOC_SYNC_MIN_VERSION=1
+2025-08-21 00:07:49 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_USE_TRITON_FLASH_ATTN=false
+2025-08-21 00:07:49 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_WORKER_MULTIPROC_METHOD=fork
+2025-08-21 00:07:49 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_ATTENTION_BACKEND=XFORMERS
+2025-08-21 00:07:49 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_NO_USAGE_STATS=1
+2025-08-21 00:07:49 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_ENABLE_V1_MULTIMODAL=true
+2025-08-21 00:07:49 | INFO     | app.llm_client:initialize_vllm:34 - Loading vLLM model: Qwen/Qwen2.5-Omni-7B
+2025-08-21 00:07:49 | INFO     | app.llm_client:initialize_vllm:49 - vLLM Configuration:
+2025-08-21 00:07:49 | INFO     | app.llm_client:initialize_vllm:51 -   model: Qwen/Qwen2.5-Omni-7B
+2025-08-21 00:07:49 | INFO     | app.llm_client:initialize_vllm:51 -   gpu_memory_utilization: 0.65
+2025-08-21 00:07:49 | INFO     | app.llm_client:initialize_vllm:51 -   max_model_len: 32768
+2025-08-21 00:07:49 | INFO     | app.llm_client:initialize_vllm:51 -   enforce_eager: True
+2025-08-21 00:07:49 | INFO     | app.llm_client:initialize_vllm:51 -   tensor_parallel_size: 1
+2025-08-21 00:07:49 | INFO     | app.llm_client:initialize_vllm:51 -   trust_remote_code: True
+2025-08-21 00:07:49 | INFO     | app.llm_client:initialize_vllm:51 -   disable_custom_all_reduce: True
+2025-08-21 00:07:49 | INFO     | app.llm_client:initialize_vllm:51 -   max_num_seqs: 4
+2025-08-21 00:07:49 | INFO     | app.llm_client:initialize_vllm:51 -   limit_mm_per_prompt: {'image': 3}
+2025-08-21 00:08:21 | INFO     | app.llm_client:initialize_vllm:54 - vLLM model loaded successfully!
+2025-08-21 00:09:43 | INFO     | app.routers.upload:upload_files:37 - Uploading 3 files for job: Senior Software Engineer
+2025-08-21 00:09:43 | INFO     | app.routers.upload:upload_files:51 - Converted sample_resume_1.pdf to 1 images.
+2025-08-21 00:09:43 | INFO     | app.routers.upload:upload_files:57 - Checking if candidate exists by resume hash: dacf2179a9c85d8c37071c928f33c5d9330f2ec89cc2e8b5f9d3c36a24a2de4b
+2025-08-21 00:09:43 | WARNING  | app.routers.upload:upload_files:60 - Candidate Jai Thakkar / jaithakkar.bits@gmail.com already exists with resume-hash:[dacf2179a9c85d8c37071c928f33c5d9330f2ec89cc2e8b5f9d3c36a24a2de4b]. Checking if they have applied to this job.
+2025-08-21 00:09:43 | INFO     | app.routers.upload:upload_files:64 - Skipping candidate Jai Thakkar / jaithakkar.bits@gmail.com because they have already applied to this job: Senior Software Engineer
+2025-08-21 00:09:43 | INFO     | app.routers.upload:upload_files:51 - Converted sample_resume_2.pdf to 1 images.
+2025-08-21 00:09:43 | INFO     | app.routers.upload:upload_files:57 - Checking if candidate exists by resume hash: 5501de161b5521955a0bee2b4d668c49617ecb24de383821debeaf889e54fb46
+2025-08-21 00:09:43 | INFO     | app.routers.upload:upload_files:73 - Candidate not found with resume-hash:[5501de161b5521955a0bee2b4d668c49617ecb24de383821debeaf889e54fb46]. Creating new candidate and evaluating for this job.
+2025-08-21 00:09:43 | INFO     | app.llm_client:query_vllm:98 - Generating response with 1 images and max_tokens=1500
+2025-08-21 00:09:50 | INFO     | app.process:evaluate_candidate_and_create:20 - LLM evaluated candidate [resume-hash:5501de161b5521955a0bee2b4d668c49617ecb24de383821debeaf889e54fb46]: LLMOutcome.REJECTED
+2025-08-21 00:09:52 | INFO     | app.routers.upload:upload_files:51 - Converted sample_false.pdf to 18 images.
+2025-08-21 00:09:52 | INFO     | app.routers.upload:upload_files:57 - Checking if candidate exists by resume hash: 44afa9ecca9561e176402fbc1ef3806bbd8c5790c6f034650e3680cb704d23d7
+2025-08-21 00:09:52 | INFO     | app.routers.upload:upload_files:73 - Candidate not found with resume-hash:[44afa9ecca9561e176402fbc1ef3806bbd8c5790c6f034650e3680cb704d23d7]. Creating new candidate and evaluating for this job.
+2025-08-21 00:09:52 | INFO     | app.llm_client:query_vllm:98 - Generating response with 18 images and max_tokens=1500
+2025-08-21 00:12:13 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-21 00:12:19 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-21 00:12:19 | INFO     | app.llm_client:initialize_vllm:20 - Setting vLLM environment variables from config:
+2025-08-21 00:12:19 | INFO     | app.llm_client:initialize_vllm:25 -   PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True,max_split_size_mb:512
+2025-08-21 00:12:19 | INFO     | app.llm_client:initialize_vllm:25 -   CUDA_VISIBLE_DEVICES=0
+2025-08-21 00:12:19 | INFO     | app.llm_client:initialize_vllm:25 -   CUDA_LAUNCH_BLOCKING=0
+2025-08-21 00:12:19 | INFO     | app.llm_client:initialize_vllm:25 -   TORCH_CUDA_ALLOC_SYNC_MIN_VERSION=1
+2025-08-21 00:12:19 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_USE_TRITON_FLASH_ATTN=false
+2025-08-21 00:12:19 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_WORKER_MULTIPROC_METHOD=fork
+2025-08-21 00:12:19 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_ATTENTION_BACKEND=XFORMERS
+2025-08-21 00:12:19 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_NO_USAGE_STATS=1
+2025-08-21 00:12:19 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_ENABLE_V1_MULTIMODAL=true
+2025-08-21 00:12:19 | INFO     | app.llm_client:initialize_vllm:34 - Loading vLLM model: Qwen/Qwen2.5-Omni-7B
+2025-08-21 00:12:19 | INFO     | app.llm_client:initialize_vllm:49 - vLLM Configuration:
+2025-08-21 00:12:19 | INFO     | app.llm_client:initialize_vllm:51 -   model: Qwen/Qwen2.5-Omni-7B
+2025-08-21 00:12:19 | INFO     | app.llm_client:initialize_vllm:51 -   gpu_memory_utilization: 0.65
+2025-08-21 00:12:19 | INFO     | app.llm_client:initialize_vllm:51 -   max_model_len: 32768
+2025-08-21 00:12:19 | INFO     | app.llm_client:initialize_vllm:51 -   enforce_eager: True
+2025-08-21 00:12:19 | INFO     | app.llm_client:initialize_vllm:51 -   tensor_parallel_size: 1
+2025-08-21 00:12:19 | INFO     | app.llm_client:initialize_vllm:51 -   trust_remote_code: True
+2025-08-21 00:12:19 | INFO     | app.llm_client:initialize_vllm:51 -   disable_custom_all_reduce: True
+2025-08-21 00:12:19 | INFO     | app.llm_client:initialize_vllm:51 -   max_num_seqs: 4
+2025-08-21 00:12:19 | INFO     | app.llm_client:initialize_vllm:51 -   limit_mm_per_prompt: {'image': 3}
+2025-08-21 00:12:52 | INFO     | app.llm_client:initialize_vllm:54 - vLLM model loaded successfully!
+2025-08-21 00:13:06 | INFO     | app.routers.upload:upload_files:37 - Uploading 3 files for job: Senior Software Engineer
+2025-08-21 00:13:06 | INFO     | app.routers.upload:upload_files:51 - Converted sample_resume_1.pdf to 1 images.
+2025-08-21 00:13:06 | INFO     | app.routers.upload:upload_files:57 - Checking if candidate exists by resume hash: dacf2179a9c85d8c37071c928f33c5d9330f2ec89cc2e8b5f9d3c36a24a2de4b
+2025-08-21 00:13:06 | WARNING  | app.routers.upload:upload_files:60 - Candidate Jai Thakkar / jaithakkar.bits@gmail.com already exists with resume-hash:[dacf2179a9c85d8c37071c928f33c5d9330f2ec89cc2e8b5f9d3c36a24a2de4b]. Checking if they have applied to this job.
+2025-08-21 00:13:06 | INFO     | app.routers.upload:upload_files:64 - Skipping candidate Jai Thakkar / jaithakkar.bits@gmail.com because they have already applied to this job: Senior Software Engineer
+2025-08-21 00:13:06 | INFO     | app.routers.upload:upload_files:51 - Converted sample_resume_2.pdf to 1 images.
+2025-08-21 00:13:06 | INFO     | app.routers.upload:upload_files:57 - Checking if candidate exists by resume hash: 5501de161b5521955a0bee2b4d668c49617ecb24de383821debeaf889e54fb46
+2025-08-21 00:13:06 | WARNING  | app.routers.upload:upload_files:60 - Candidate Deepti Ahlawat / deepitia088@gmail.com already exists with resume-hash:[5501de161b5521955a0bee2b4d668c49617ecb24de383821debeaf889e54fb46]. Checking if they have applied to this job.
+2025-08-21 00:13:06 | INFO     | app.routers.upload:upload_files:64 - Skipping candidate Deepti Ahlawat / deepitia088@gmail.com because they have already applied to this job: Senior Software Engineer
+2025-08-21 00:13:08 | INFO     | app.routers.upload:upload_files:51 - Converted sample_false.pdf to 3 images.
+2025-08-21 00:13:08 | INFO     | app.routers.upload:upload_files:57 - Checking if candidate exists by resume hash: 44afa9ecca9561e176402fbc1ef3806bbd8c5790c6f034650e3680cb704d23d7
+2025-08-21 00:13:08 | INFO     | app.routers.upload:upload_files:73 - Candidate not found with resume-hash:[44afa9ecca9561e176402fbc1ef3806bbd8c5790c6f034650e3680cb704d23d7]. Creating new candidate and evaluating for this job.
+2025-08-21 00:13:08 | INFO     | app.llm_client:query_vllm:98 - Generating response with 3 images and max_tokens=1500
+2025-08-21 00:13:11 | ERROR    | app.llm_client:query_vllm:113 - An unexpected error occurred during vLLM inference: Expected there to be 3 prompt updates corresponding to 3 image items, but instead found 1 prompt updates! This is likely because you forgot to include input placeholder tokens (e.g., `<image>`, `<|image_pad|>`) in the prompt. If the model has a chat template, make sure you have applied it before calling `LLM.generate`.
+2025-08-21 00:15:37 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-21 00:15:42 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-21 00:15:42 | INFO     | app.llm_client:initialize_vllm:20 - Setting vLLM environment variables from config:
+2025-08-21 00:15:42 | INFO     | app.llm_client:initialize_vllm:25 -   PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True,max_split_size_mb:512
+2025-08-21 00:15:42 | INFO     | app.llm_client:initialize_vllm:25 -   CUDA_VISIBLE_DEVICES=0
+2025-08-21 00:15:42 | INFO     | app.llm_client:initialize_vllm:25 -   CUDA_LAUNCH_BLOCKING=0
+2025-08-21 00:15:42 | INFO     | app.llm_client:initialize_vllm:25 -   TORCH_CUDA_ALLOC_SYNC_MIN_VERSION=1
+2025-08-21 00:15:42 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_USE_TRITON_FLASH_ATTN=false
+2025-08-21 00:15:42 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_WORKER_MULTIPROC_METHOD=fork
+2025-08-21 00:15:42 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_ATTENTION_BACKEND=XFORMERS
+2025-08-21 00:15:42 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_NO_USAGE_STATS=1
+2025-08-21 00:15:42 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_ENABLE_V1_MULTIMODAL=true
+2025-08-21 00:15:42 | INFO     | app.llm_client:initialize_vllm:34 - Loading vLLM model: Qwen/Qwen2.5-Omni-7B
+2025-08-21 00:15:42 | INFO     | app.llm_client:initialize_vllm:49 - vLLM Configuration:
+2025-08-21 00:15:42 | INFO     | app.llm_client:initialize_vllm:51 -   model: Qwen/Qwen2.5-Omni-7B
+2025-08-21 00:15:42 | INFO     | app.llm_client:initialize_vllm:51 -   gpu_memory_utilization: 0.85
+2025-08-21 00:15:42 | INFO     | app.llm_client:initialize_vllm:51 -   max_model_len: 32768
+2025-08-21 00:15:42 | INFO     | app.llm_client:initialize_vllm:51 -   enforce_eager: True
+2025-08-21 00:15:42 | INFO     | app.llm_client:initialize_vllm:51 -   tensor_parallel_size: 1
+2025-08-21 00:15:42 | INFO     | app.llm_client:initialize_vllm:51 -   trust_remote_code: True
+2025-08-21 00:15:42 | INFO     | app.llm_client:initialize_vllm:51 -   disable_custom_all_reduce: True
+2025-08-21 00:15:42 | INFO     | app.llm_client:initialize_vllm:51 -   max_num_seqs: 4
+2025-08-21 00:15:42 | INFO     | app.llm_client:initialize_vllm:51 -   limit_mm_per_prompt: {'image': 3}
+2025-08-21 00:16:15 | INFO     | app.llm_client:initialize_vllm:54 - vLLM model loaded successfully!
+2025-08-21 00:16:20 | INFO     | app.routers.upload:upload_files:37 - Uploading 3 files for job: Senior Software Engineer
+2025-08-21 00:16:20 | INFO     | app.routers.upload:upload_files:51 - Converted sample_resume_1.pdf to 1 images.
+2025-08-21 00:16:20 | INFO     | app.routers.upload:upload_files:57 - Checking if candidate exists by resume hash: dacf2179a9c85d8c37071c928f33c5d9330f2ec89cc2e8b5f9d3c36a24a2de4b
+2025-08-21 00:16:20 | INFO     | app.routers.upload:upload_files:73 - Candidate not found with resume-hash:[dacf2179a9c85d8c37071c928f33c5d9330f2ec89cc2e8b5f9d3c36a24a2de4b]. Creating new candidate and evaluating for this job.
+2025-08-21 00:16:20 | INFO     | app.llm_client:query_vllm:98 - Generating response with 1 images and max_tokens=1500
+2025-08-21 00:16:27 | INFO     | app.process:evaluate_candidate_and_create:20 - LLM evaluated candidate [resume-hash:dacf2179a9c85d8c37071c928f33c5d9330f2ec89cc2e8b5f9d3c36a24a2de4b]: LLMOutcome.SHORTLISTED
+2025-08-21 00:16:28 | INFO     | app.routers.upload:upload_files:51 - Converted sample_resume_2.pdf to 1 images.
+2025-08-21 00:16:28 | INFO     | app.routers.upload:upload_files:57 - Checking if candidate exists by resume hash: 5501de161b5521955a0bee2b4d668c49617ecb24de383821debeaf889e54fb46
+2025-08-21 00:16:28 | INFO     | app.routers.upload:upload_files:73 - Candidate not found with resume-hash:[5501de161b5521955a0bee2b4d668c49617ecb24de383821debeaf889e54fb46]. Creating new candidate and evaluating for this job.
+2025-08-21 00:16:28 | INFO     | app.llm_client:query_vllm:98 - Generating response with 1 images and max_tokens=1500
+2025-08-21 00:16:31 | INFO     | app.process:evaluate_candidate_and_create:20 - LLM evaluated candidate [resume-hash:5501de161b5521955a0bee2b4d668c49617ecb24de383821debeaf889e54fb46]: LLMOutcome.REJECTED
+2025-08-21 00:16:33 | INFO     | app.routers.upload:upload_files:51 - Converted sample_false.pdf to 3 images.
+2025-08-21 00:16:33 | INFO     | app.routers.upload:upload_files:57 - Checking if candidate exists by resume hash: 44afa9ecca9561e176402fbc1ef3806bbd8c5790c6f034650e3680cb704d23d7
+2025-08-21 00:16:33 | INFO     | app.routers.upload:upload_files:73 - Candidate not found with resume-hash:[44afa9ecca9561e176402fbc1ef3806bbd8c5790c6f034650e3680cb704d23d7]. Creating new candidate and evaluating for this job.
+2025-08-21 00:16:33 | INFO     | app.llm_client:query_vllm:98 - Generating response with 3 images and max_tokens=1500
+2025-08-21 00:16:33 | ERROR    | app.llm_client:query_vllm:113 - An unexpected error occurred during vLLM inference: Expected there to be 3 prompt updates corresponding to 3 image items, but instead found 1 prompt updates! This is likely because you forgot to include input placeholder tokens (e.g., `<image>`, `<|image_pad|>`) in the prompt. If the model has a chat template, make sure you have applied it before calling `LLM.generate`.

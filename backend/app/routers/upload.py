@@ -47,7 +47,7 @@ async def upload_files(
         job = crud.get_jobs(db_session, title=job_title)        
 
         try:
-            resume_images = convert_from_bytes(file_bytes)
+            resume_images = convert_from_bytes(file_bytes)[:cfg.vllm.inference_args.limit_mm_per_prompt.image]
             logger.info(f"Converted {_file.filename} to {len(resume_images)} images.")            
         except Exception as e:
             if isinstance(e, OSError) and "poppler" in str(e).lower():
