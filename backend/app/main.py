@@ -25,13 +25,10 @@ async def lifespan(app: FastAPI):
             initialize_vllm(cfg)
         except Exception as e:
             logging.error(f"Failed to initialize vLLM: {e}")
-            # Don't crash the app, just log the error
             pass
     
     yield
     
-    # Shutdown (if needed)
-    # Any cleanup code can go here
 
 app = FastAPI(lifespan=lifespan)
 
@@ -53,14 +50,14 @@ app.include_router(upload.router)
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to the Wheat-From-Chaff API"}
+    return {"message": "Welcome to the Needle-in-a-Haystack API"}
 
 def main():
     uvicorn.run(
         "app.main:app",
         host=cfg.app.host,
         port=cfg.app.port,
-        reload=cfg.app.env == "dev",  # Reload only in dev
+        reload=cfg.app.env == "dev",
         log_config=None,
         access_log=True,
     )

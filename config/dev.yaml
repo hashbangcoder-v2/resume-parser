@@ -1,5 +1,4 @@
-# Development Overrides
-# This is the development configuration for the backend.
+# TODO : Clean up config filee
 
 app:
   env: "dev"
@@ -9,44 +8,27 @@ app:
     - "http://localhost:3000"
     - "http://127.0.0.1:3000"
     - "*" # Allow all for flexible dev
+  max_page_size: 3
 
-vllm:
-  inference_args:
-    gpu_memory_utilization: 0.85  
-    max_model_len: 32768  
-    enforce_eager: True  
-    tensor_parallel_size: 1
-    trust_remote_code: True    
-    limit_mm_per_prompt: {"image": 3}  
-    repetition_penalty: 1.1
-    temperature: 0.7
 
-  env_vars:
-    PYTORCH_CUDA_ALLOC_CONF: 'expandable_segments:True,max_split_size_mb:512'
-    CUDA_VISIBLE_DEVICES: 0
-    CUDA_LAUNCH_BLOCKING: 0
-    TORCH_CUDA_ALLOC_SYNC_MIN_VERSION: 1
-    
-    VLLM_USE_TRITON_FLASH_ATTN: 'false'  # Enable flash attention for A100
-    VLLM_WORKER_MULTIPROC_METHOD: 'fork'  # Use fork instead of spawn on Linux
-    VLLM_ATTENTION_BACKEND: 'XFORMERS'  # Use standard Flash Attention 
-    VLLM_NO_USAGE_STATS: 1
-    VLLM_ENABLE_V1_MULTIMODAL: 'true'  # Enable multimodal support
-
+# AI Model configuration - references models.yaml
+ai_model:
+  endpoint: null  # No external endpoint in dev - using local vLLM  
+  health_check_interval_seconds: 30
+  health_check_timeout_seconds: 5
   
+  # Model overrides for development (optional)
+  dev_overrides:
+    # Override inference params for development
+    inference_params:
+      temperature: 0.3  # Slightly higher for development testing
+    
+    vllm_config:
+      gpu_memory_utilization: 0.75  
+
 logging:
   level: "DEBUG"
   file: "${oc.env:PROJECT_ROOT}/logs/backend_dev.log"
-
-
-ai_model:
-  default: "Qwen/Qwen2.5-Omni-7B"
-  temperature: 0.2
-  health_check_interval_seconds: 30
-  health_check_timeout_seconds: 5  
-  models:    
-    - "Qwen/Qwen2.5-Omni-7B"
-    - "qwen3"
 
 local_storage:
   path: "${oc.env:PROJECT_ROOT}/uploaded_resumes" 

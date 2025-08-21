@@ -1,10 +1,12 @@
 .env
 backend/*egg-info/*
 database/*
+!database/.gitkeep
 startup.sh
 setup.sh
 *.pdf
 *.log
 launch.json
 test-files/*
-*.log
+vllm_server.log
+data_retriever/*

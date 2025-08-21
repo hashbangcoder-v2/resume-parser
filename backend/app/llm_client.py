@@ -1,5 +1,7 @@
 import json
-from omegaconf import DictConfig
+import os
+from pathlib import Path
+from omegaconf import DictConfig, OmegaConf
 from typing import List
 from PIL import Image
 from app.logger import logger
@@ -18,21 +20,20 @@ def initialize_vllm(cfg: DictConfig):
     global vllm_model
         
     logger.info("Setting vLLM environment variables from config:")
-    import os
-    if hasattr(cfg.vllm, 'env_vars'):
-        for key, value in cfg.vllm.env_vars.items():
+    if hasattr(cfg, 'env_vars'):
+        for key, value in cfg.env_vars.items():
             os.environ[str(key)] = str(value)
             logger.info(f"  {key}={value}")
     
-    model_name = cfg.ai_model.default
-    supported_models = cfg.ai_model.models
+    model_name = cfg.default_model
+    supported_models = cfg.models
     if model_name not in supported_models:
         logger.error(f"vLLM model '{model_name}' is not supported. Please check the supported models in dev.yaml.")
         return    
     
     try:
         logger.info(f"Loading vLLM model: {model_name}")                
-        vllm_inference_args = cfg.vllm.inference_args
+        vllm_inference_args = OmegaConf.merge(cfg.vllm_common_inference_args, cfg.models[model_name])
         
         vllm_config = {
             "model": model_name,
@@ -43,7 +44,7 @@ def initialize_vllm(cfg: DictConfig):
             "trust_remote_code": vllm_inference_args.trust_remote_code,
             "disable_custom_all_reduce": True,  
             "max_num_seqs": vllm_inference_args.get("max_num_seqs", 4),                 
-            "limit_mm_per_prompt": vllm_inference_args.limit_mm_per_prompt,  
+            "limit_mm_per_prompt": {"image": cfg.app.max_page_size},  
         }
         
         logger.info("vLLM Configuration:")
@@ -72,7 +73,7 @@ async def get_model_response(
 
 
 async def query_vllm(
-    cfg: DictConfig, 
+    model_cfg: DictConfig, 
     images: List[Image.Image], 
     job_description: str,     
 ) -> LLMResponse:
@@ -89,9 +90,9 @@ async def query_vllm(
         #  enforce structured outputs
         guided_decoding_params = GuidedDecodingParams(json=LLMResponse.model_json_schema())        
         sampling_params = SamplingParams(
-            temperature=cfg.vllm.inference_args.temperature,
+            temperature=model_cfg.temperature,
             max_tokens=max_response_tokens,            
-            repetition_penalty=cfg.vllm.inference_args.repetition_penalty,
+            repetition_penalty=model_cfg.repetition_penalty,
             guided_decoding=guided_decoding_params,
         )
 

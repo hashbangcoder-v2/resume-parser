@@ -1,5 +1,6 @@
 from PIL import Image
 from typing import List
+from omegaconf import OmegaConf
 from app.config import DictConfig
 from app.logger import logger
 from app import llm_client, crud, schemas
@@ -14,7 +15,7 @@ def process_upload(cfg: DictConfig, candidate: Candidate, job_description: str, 
 
 
 async def evaluate_candidate_and_create(cfg: DictConfig, images: List[Image.Image], job: Job, db_session: Session, resume_hash: str, new_candidate: bool = False):    
-    llm_response = await llm_client.get_model_response(cfg, images, job.description)
+    llm_response = await llm_client.get_model_response(OmegaConf.merge(cfg, cfg.models[cfg.default_model]), images, job.description)
     if llm_response.outcome != schemas.LLMOutcome.FAILED.value:        
         if new_candidate:
             logger.info(f"LLM evaluated candidate [resume-hash:{resume_hash}]: {llm_response.outcome}")

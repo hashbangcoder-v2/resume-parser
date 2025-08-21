@@ -45,9 +45,9 @@ async def upload_files(
         file_bytes = await _file.read()        
         resume_hash = hashlib.sha256(file_bytes).hexdigest()        
         job = crud.get_jobs(db_session, title=job_title)        
-
+        resume_images = None
         try:
-            resume_images = convert_from_bytes(file_bytes)[:cfg.vllm.inference_args.limit_mm_per_prompt.image]
+            resume_images = convert_from_bytes(file_bytes)[:cfg.app.max_page_size]
             logger.info(f"Converted {_file.filename} to {len(resume_images)} images.")            
         except Exception as e:
             if isinstance(e, OSError) and "poppler" in str(e).lower():
@@ -70,7 +70,7 @@ async def upload_files(
                 processed_files.append(_file.filename)
         # candidate not found, create a new candidate and evaluate for this job
         else:
-            logger.info(f"Candidate not found with resume-hash:[{resume_hash}]. Creating new candidate and evaluating for this job.")                        
+            logger.info(f"Candidate not found with resume-hash:[{resume_hash}]. Evaluating and creating new candidate...")                        
             llm_response = await evaluate_candidate_and_create(cfg, resume_images, job, db_session, resume_hash, new_candidate=True)                    
             processed_files.append(_file.filename)
             

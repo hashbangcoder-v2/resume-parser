@@ -1,0 +1,42 @@
+# LLM/VLM configurations
+
+default_model: "Qwen/Qwen2.5-Omni-7B"
+
+models:
+  "Qwen/Qwen2.5-Omni-7B":
+    display_name: "Qwen 2.5 Omni 7B"
+    gpu_memory_utilization: 0.85
+    max_model_len: 32768
+    temperature: 0.9
+    repetition_penalty: 1.1
+    max_tokens: 1024
+    max_num_seqs: 4
+
+  "zai-org/GLM-4.1V-9B-Thinking":
+    display_name: "GLM-4.1V 9B Thinking"
+    gpu_memory_utilization: 0.80  # Slightly less for larger model
+    max_model_len: 16384
+    temperature: 0.3  
+    repetition_penalty: 1.05
+    max_tokens: 2048  
+    max_num_seqs: 2   
+
+# Common vLLM settings for all models
+vllm_common_inference_args:
+  enforce_eager: true
+  tensor_parallel_size: 1
+  trust_remote_code: true
+  disable_custom_all_reduce: true
+  block_size: 16
+
+# Environment variables
+env_vars:
+  PYTORCH_CUDA_ALLOC_CONF: 'expandable_segments:True,max_split_size_mb:512'
+  CUDA_VISIBLE_DEVICES: 0
+  CUDA_LAUNCH_BLOCKING: 0
+  TORCH_CUDA_ALLOC_SYNC_MIN_VERSION: 1
+  VLLM_WORKER_MULTIPROC_METHOD: 'fork'
+  VLLM_NO_USAGE_STATS: 1
+  VLLM_USE_TRITON_FLASH_ATTN: 'false'
+  VLLM_ATTENTION_BACKEND: 'XFORMERS'
+  VLLM_ENABLE_V1_MULTIMODAL: 'true'
