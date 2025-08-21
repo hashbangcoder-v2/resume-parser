@@ -1,16 +1,22 @@
-# AI-Powered Candidate Filtering System
+# Needle-in-a-Haystack 
 
-This project is an AI-powered system to efficiently filter job candidates from a large pool of applicants. It leverages a modern web stack to provide a seamless user experience for recruiters and hiring managers.
+When you are reviewing hundreds of resumes each month, you wish you had a way to only review the good ones! This is a project borne out of that experience. Normally, one would use an API key from OpenAI or Google to handle the actual parsing and evaluation. But given data confidentiality of files involved, we need to use local open-models!
+
+
+- [x] Step-1: Skeletal functionality to upload resumes and evaluate them for a job
+- [x] Step-2: Local deployment of backend, frontend and database
+- [x] Step-3: Get end-end functioanlity with one VLM model (Qwen2.5-Omni-7B)
+- [ ] Step-4: Support multiple/hybridVLM models for user to choose from (Gemma3, GLM-4.1, Mix of reasoning models + lightweight Doc parsing models)
+- [ ] Step-5: RL fine-tune (mix of RLHF + RLVR) VLM models to learn from preferences
+
 
 ## Architecture
 
-The system is built with a flexible architecture that can be deployed in various environments, from local development to a scalable cloud setup.
-
-- **Frontend**: A modern React single-page application built with Next.js and styled with Tailwind CSS. It is designed to be deployed on static hosting platforms like Vercel or Azure Static Web Apps.
+- **Frontend**: A modern React single-page application built with Next.js and styled with Tailwind CSS. 
 - **Backend**: A robust API built with Python and FastAPI. It handles business logic, data processing, and communication with the database and AI models.
-- **Database**: Uses SQLite for local development, making it easy to get started. For production, it can be configured to use any database supported by SQLAlchemy.
-- **Storage**: Supports both local file storage and Azure Blob Storage for resumes and other assets.
-- **AI Model**: Integrates with a Vision Language Model (VLM) for intelligent resume analysis. The model can be run locally or accessed via an Azure ML Online Endpoint.
+- **Database**: Uses SQLite. Making it easy to get started. If needed, it can be configured to use any database supported by SQLAlchemy.
+- **Storage**: Supports both local file storage and Azure Blob Storage for data stores
+- **AI Model**: Integrates with a Vision Language Model (VLM) for intelligent resume analysis. The model can be run locally or accessed via an ML Online Endpoint.
 
 ## Project Structure
 
@@ -27,9 +33,9 @@ The system is built with a flexible architecture that can be deployed in various
 Before you begin, ensure you have the following installed:
 
 - **Node.js**: Required for the frontend.
-- **Python**: Required for the backend.
+- **Python / FastAPI**: Required for the backend.
 - **Poppler**: A system-level dependency for processing PDF files.
-- **uv**: A modern Python package manager (highly recommended)
+- **uv**: A modern Python package manager 
 
 **Installing Poppler:**
 - **On Debian/Ubuntu:**
@@ -55,7 +61,7 @@ Before you begin, ensure you have the following installed:
 3.  **Set the `PROJECT_ROOT` environment variable:**
     This variable is required for the backend to locate configuration and database files.
 
-4.  **Seed the database (optional):**
+4.  **Seed the database:**
     If you want to start with some sample data for local dev/testing:
     ```bash
     uv run seed_db
@@ -84,7 +90,7 @@ Before you begin, ensure you have the following installed:
 1.  **Start the backend server:**
     From the `backend` directory, run:
     ```bash
-    uv run wfc-serve
+    wfc-serve
     ```
     The API will be available at `http://localhost:8000`.
 
@@ -94,13 +100,3 @@ Before you begin, ensure you have the following installed:
     npm run dev
     ```
     Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
-
-## Deployment
-
-### Frontend
-
-One way to deploy your Next.js app is to use Azure Static Webapp.
-
-### Backend
-
-TBD

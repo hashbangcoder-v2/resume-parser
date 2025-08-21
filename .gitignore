@@ -7,3 +7,4 @@ setup.sh
 *.log
 launch.json
 test-files/*
+*.log
