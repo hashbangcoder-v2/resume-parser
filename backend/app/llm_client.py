@@ -1,14 +1,12 @@
-import httpx
 import json
-import dotenv
 from omegaconf import DictConfig
-from typing import List, Optional
+from typing import List
 from PIL import Image
 from app.logger import logger
 from app.schemas import LLMResponse
-from app.common_utils import get_system_prompt, image_to_base64
 from vllm import LLM, SamplingParams
-from app.craft_prompt import generate_llm_prompt
+from app.model_utils import generate_llm_prompt
+from vllm.sampling_params import GuidedDecodingParams
 
 
 vllm_model = None
@@ -19,7 +17,7 @@ def initialize_vllm(cfg: DictConfig):
     """
     global vllm_model
         
-    logger.info("🔧 Setting vLLM environment variables from config:")
+    logger.info("Setting vLLM environment variables from config:")
     import os
     if hasattr(cfg.vllm, 'env_vars'):
         for key, value in cfg.vllm.env_vars.items():
@@ -33,7 +31,7 @@ def initialize_vllm(cfg: DictConfig):
         return    
     
     try:
-        logger.info(f"🚀 Loading vLLM model: {model_name}")                
+        logger.info(f"Loading vLLM model: {model_name}")                
         vllm_inference_args = cfg.vllm.inference_args
         
         vllm_config = {
@@ -44,20 +42,19 @@ def initialize_vllm(cfg: DictConfig):
             "tensor_parallel_size": vllm_inference_args.tensor_parallel_size,
             "trust_remote_code": vllm_inference_args.trust_remote_code,
             "disable_custom_all_reduce": True,  
-            "max_num_seqs": vllm_inference_args.get("max_num_seqs", 4),     
-            "block_size": 16,  
-            "limit_mm_per_prompt": vllm_inference_args.get("limit_mm_per_prompt", {"image": 3}),  
+            "max_num_seqs": vllm_inference_args.get("max_num_seqs", 4),                 
+            "limit_mm_per_prompt": vllm_inference_args.limit_mm_per_prompt,  
         }
         
-        logger.info("⚙️  vLLM Configuration:")
+        logger.info("vLLM Configuration:")
         for key, value in vllm_config.items():
             logger.info(f"  {key}: {value}")
             
         vllm_model = LLM(**vllm_config)
-        logger.info("✅ vLLM model loaded successfully!")
+        logger.info("vLLM model loaded successfully!")
         
     except Exception as e:
-        logger.error(f"❌ Failed to load vLLM model: {e}")
+        logger.error(f"Failed to load vLLM model: {e}")
         raise e
 
 
@@ -84,31 +81,33 @@ async def query_vllm(
     """
     if not vllm_model:
         logger.error("vLLM model is not available for inference.")
-        return LLMResponse(outcome="Failed", reason="vLLM model not loaded.")
+        return LLMResponse(outcome="Failed", reason="vLLM model not loaded during inference.")
     
     try:                
         model_max_len = vllm_model.llm_engine.model_config.max_model_len
-        max_response_tokens = min(1500, max(512, model_max_len - 500))
-        
+        max_response_tokens = min(1500, max(512, model_max_len - 500))        
+        #  enforce structured outputs
+        guided_decoding_params = GuidedDecodingParams(json=LLMResponse.model_json_schema())        
         sampling_params = SamplingParams(
             temperature=cfg.vllm.inference_args.temperature,
             max_tokens=max_response_tokens,            
             repetition_penalty=cfg.vllm.inference_args.repetition_penalty,
+            guided_decoding=guided_decoding_params,
         )
 
         logger.info(f"Generating response with {len(images)} images and max_tokens={max_response_tokens}")
         multimodal_input = generate_llm_prompt(images, job_description)
 
         outputs = vllm_model.generate([multimodal_input], sampling_params)
-        llm_content = outputs[0].outputs[0].text
-        
+        llm_content = outputs[0].outputs[0].text.strip()
         parsed_content = json.loads(llm_content)
         validated_response = LLMResponse.model_validate(parsed_content)
         return validated_response
 
     except json.JSONDecodeError as e:
         logger.error(f"Error parsing JSON from vLLM response: {e}")
-        logger.error(f"Raw response: {llm_content[:500]}...")
+        if 'llm_content' in locals():
+            logger.error(f"Raw response: {llm_content[:500]}...")
         return LLMResponse(outcome="Failed", reason="Error parsing AI response.")
     except Exception as e:
         logger.error(f"An unexpected error occurred during vLLM inference: {e}", exc_info=True)

@@ -30,8 +30,4 @@ def read_job(job_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Job not found")
     return db_job
 
-@router.get("/{job_id}/applications", response_model=List[schemas.Application])
-def read_job_applications(job_id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    applications = crud.get_applications_for_job(db, job_id=job_id, skip=skip, limit=limit)
-    return applications 
 

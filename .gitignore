@@ -6,3 +6,4 @@ setup.sh
 *.pdf
 *.log
 launch.json
+test-files/*

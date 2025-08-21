@@ -3,6 +3,8 @@ from pdf2image import convert_from_path
 from pathlib import Path
 from app.common_utils import get_system_prompt
 from omegaconf import OmegaConf
+from vllm.sampling_params import GuidedDecodingParams
+from app.schemas import LLMResponse
 
 vllm_model = None
 
@@ -34,7 +36,9 @@ vllm_model = LLM(**vllm_config)
 pdf_file = Path('/home/azureuser/localfiles/resume-parser/sample.pdf')
 
 images = convert_from_path(pdf_file)
-
+guided_decoding_params = GuidedDecodingParams(    
+    json=LLMResponse.model_json_schema(),
+)
 system_prompt = get_system_prompt()
 question = "Analyze the attached resume images above and provide your assessment."
 prompt = (
@@ -50,7 +54,7 @@ model_inputs={
             },
         }
 
-sampling_params = SamplingParams(temperature=0.7, max_tokens=1024)
+sampling_params = SamplingParams(temperature=0.7, max_tokens=1024, guided_decoding=guided_decoding_params)
 
 
 outputs = vllm_model.generate(model_inputs, sampling_params=sampling_params)

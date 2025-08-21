@@ -2,14 +2,20 @@ from sqlalchemy.orm import Session
 from app import models, schemas
 
 # Job CRUD
-def get_job(db: Session, job_id: int):
-    return db.query(models.Job).filter(models.Job.id == job_id).first()
-
-def get_job_by_title(db: Session, title: str):
-    return db.query(models.Job).filter(models.Job.title == title).first()
-
-def get_jobs(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Job).offset(skip).limit(limit).all()
+def get_jobs(db: Session, job_id: int = None, title: str = None, skip: int = 0, limit: int = 100):
+    """
+    Retrieve jobs with optional filters:
+    - If job_id is provided, return the job with that id.
+    - If title is provided, return the job with that title.
+    - If neither is provided, return all jobs paginated.
+    """
+    query = db.query(models.Job)
+    if job_id is not None:
+        return query.filter(models.Job.id == job_id).first()
+    elif title is not None:
+        return query.filter(models.Job.title == title).first()
+    else:
+        return query.offset(skip).limit(limit).all()
 
 def create_job(db: Session, job: schemas.JobCreate):
     db_job = models.Job(title=job.title, description=job.description)
@@ -22,47 +28,29 @@ def create_job(db: Session, job: schemas.JobCreate):
 
 def get_candidates(
     db: Session,
-    skip: int = 0,
     limit: int = 100,
     email: str = None,
-    resume_hash: str = None,
-    match_both: bool = False,
-):
+    resume_hash: str = None,    
+) -> models.Candidate | list[models.Candidate]:
     """
     Retrieve candidates with optional filters:
-    - If both email and resume_hash are provided and match_either is True, return the first candidate matching either.
-    - If both are provided and match_either is False, return candidates matching both.
-    - If only one is provided, filter by that.
-    - If neither is provided, return all candidates paginated.
+    - If resume_hash is provided, return the first candidate matching .
+    - If only email is provided, filter by that.
+    - If neither is provided, return all candidates paginated upto limit
     """
     query = db.query(models.Candidate)
-    if email is not None and resume_hash is not None:
-        if not match_both:
-            candidate = (
-                query.filter(
-                    (models.Candidate.resume_hash == resume_hash)                     
-                )
-                .first()
-            )
-            return candidate
-        else:
-        
-            return (
-                query.filter(
-                    (models.Candidate.resume_hash == resume_hash) & (models.Candidate.email == email)                  
-                )
-                .offset(skip)
-                .limit(limit)
-                .all()
-            )
-    elif resume_hash is not None:
-        return query.filter(models.Candidate.resume_hash == resume_hash).offset(skip).limit(limit).all()
+    if resume_hash is not None:
+        return query.filter(models.Candidate.resume_hash == resume_hash).first()
     elif email is not None:
-        return query.filter(models.Candidate.email == email).offset(skip).limit(limit).all()
+        return query.filter(models.Candidate.email == email).first()
     else:
-        return query.offset(skip).limit(limit).all()
+        return query.limit(limit).all()
 
+    
 def get_jobs_applied_by_candidate(db: Session, candidate_id: int):
+    """
+    Get all jobs applied by a candidate.
+    """
     return (
         db.query(models.Job)
         .join(models.Application, models.Application.job_id == models.Job.id)
@@ -71,6 +59,9 @@ def get_jobs_applied_by_candidate(db: Session, candidate_id: int):
     )
 
 def create_candidate(db: Session, candidate: schemas.CandidateCreate):
+    """
+    Create a new candidate.
+    """
     db_candidate = models.Candidate(name=candidate.name, email=candidate.email, resume_hash=candidate.resume_hash)
     db.add(db_candidate)
     db.commit()

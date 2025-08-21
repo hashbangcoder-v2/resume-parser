@@ -40,6 +40,13 @@ class LLMOutcome(str, Enum):
     NEEDS_REVIEW = "Needs Review"
     FAILED = "Failed"
 
+# Human overrides if any
+class FinalStatus(str, Enum):
+    SHORTLISTED = LLMOutcome.SHORTLISTED.value
+    REJECTED = LLMOutcome.REJECTED.value
+    NEEDS_REVIEW = LLMOutcome.NEEDS_REVIEW.value
+    FAILED = LLMOutcome.FAILED.value
+    TBD = '-'
 
 class LLMResponse(BaseModel):
     name: str
@@ -49,8 +56,7 @@ class LLMResponse(BaseModel):
 
 # Application Schemas
 class ApplicationBase(BaseModel):
-    status: str
-    final_status: str
+    status: str    
     reason: Optional[str] = None
     file_url: Optional[str] = None
 

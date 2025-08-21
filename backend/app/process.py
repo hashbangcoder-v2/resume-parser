@@ -1,9 +1,11 @@
-from app.schemas import Candidate
+from PIL import Image
+from typing import List
 from app.config import DictConfig
 from app.logger import logger
-from fastapi import HTTPException
-from pdf2image import convert_from_bytes
-from app import llm_client
+from app import llm_client, crud, schemas
+from app.schemas import FinalStatus
+from sqlalchemy.orm import Session
+from app.models import Job, Candidate
 
 
 def process_upload(cfg: DictConfig, candidate: Candidate, job_description: str, file_bytes: bytes):
@@ -11,16 +13,22 @@ def process_upload(cfg: DictConfig, candidate: Candidate, job_description: str, 
     pass
 
 
-async def evaluate_candidate(cfg: DictConfig, candidate: Candidate, job_description: str, file_bytes: bytes):
-    try:
-        images = convert_from_bytes(file_bytes)
-        logger.info(f"Converted {file.filename} to {len(images)} images.")
-        llm_response = await llm_client.get_model_response(cfg, images)
-        analysis_result = llm_response.get('choices', [{}])[0].get('message', {}).get('content', 'AI analysis pending.')
-    except Exception as e:
-        logger.error(f"Failed to process {file.filename} with LLM: {e}")
-        raise HTTPException(status_code=500, detail=f"Error during AI analysis: {e}")
+async def evaluate_candidate_and_create(cfg: DictConfig, images: List[Image.Image], job: Job, db_session: Session, resume_hash: str, new_candidate: bool = False):    
+    llm_response = await llm_client.get_model_response(cfg, images, job.description)
+    if llm_response.outcome != schemas.LLMOutcome.FAILED.value:        
+        if new_candidate:
+            logger.info(f"LLM evaluated candidate [resume-hash:{resume_hash}]: {llm_response.outcome}")
+            candidate_new = schemas.CandidateCreate(name=llm_response.name, email=llm_response.email, resume_hash=resume_hash)
+            candidate = crud.create_candidate(db_session, candidate=candidate_new)
+    
+        application_in = schemas.ApplicationCreate(candidate_id=candidate.id, job_id=job.id, status=llm_response.outcome, final_status=FinalStatus.TBD, reason=llm_response.reason)
+        crud.create_application(db_session, application=application_in)
 
-def reevaluate_candidate(cfg: DictConfig, candidate: Candidate, job_description: str, file_bytes: bytes):
-    analysis = evaluate_candidate(cfg, candidate, job_description, file_bytes)
-    pass
+    else:
+        application_in = schemas.ApplicationCreate(candidate_id=candidate.id, job_id=job.id, status=llm_response.outcome, final_status=FinalStatus.FAILED, reason=llm_response.reason)
+        crud.create_application(db_session, application=application_in)
+        logger.error(f"LLM failed to evaluate candidate [resume-hash:{resume_hash}]: {llm_response.reason}")        
+
+
+
+

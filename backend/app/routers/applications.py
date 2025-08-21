@@ -15,3 +15,8 @@ def update_application_status(application_id: int, status: schemas.ApplicationUp
     if db_application is None:
         raise HTTPException(status_code=404, detail="Application not found")
     return db_application 
+
+@router.get("/applications/{job_id}", response_model=List[schemas.Application])
+def read_job_applications(job_id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    applications = crud.get_applications_for_job(db, job_id=job_id, skip=skip, limit=limit)
+    return applications 

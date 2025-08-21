@@ -243,3 +243,137 @@
 2025-08-08 13:16:57 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
 2025-08-08 13:17:16 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
 2025-08-08 13:42:35 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-20 23:41:39 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-20 23:41:45 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-20 23:41:45 | INFO     | app.llm_client:initialize_vllm:20 - Setting vLLM environment variables from config:
+2025-08-20 23:41:45 | INFO     | app.llm_client:initialize_vllm:25 -   PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True,max_split_size_mb:512
+2025-08-20 23:41:45 | INFO     | app.llm_client:initialize_vllm:25 -   CUDA_VISIBLE_DEVICES=0
+2025-08-20 23:41:45 | INFO     | app.llm_client:initialize_vllm:25 -   CUDA_LAUNCH_BLOCKING=0
+2025-08-20 23:41:45 | INFO     | app.llm_client:initialize_vllm:25 -   TORCH_CUDA_ALLOC_SYNC_MIN_VERSION=1
+2025-08-20 23:41:45 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_USE_TRITON_FLASH_ATTN=false
+2025-08-20 23:41:45 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_WORKER_MULTIPROC_METHOD=fork
+2025-08-20 23:41:45 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_ATTENTION_BACKEND=XFORMERS
+2025-08-20 23:41:45 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_NO_USAGE_STATS=1
+2025-08-20 23:41:45 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_ENABLE_V1_MULTIMODAL=true
+2025-08-20 23:41:45 | INFO     | app.llm_client:initialize_vllm:34 - Loading vLLM model: Qwen/Qwen2.5-Omni-7B
+2025-08-20 23:41:45 | INFO     | app.llm_client:initialize_vllm:49 - vLLM Configuration:
+2025-08-20 23:41:45 | INFO     | app.llm_client:initialize_vllm:51 -   model: Qwen/Qwen2.5-Omni-7B
+2025-08-20 23:41:45 | INFO     | app.llm_client:initialize_vllm:51 -   gpu_memory_utilization: 0.65
+2025-08-20 23:41:45 | INFO     | app.llm_client:initialize_vllm:51 -   max_model_len: 32768
+2025-08-20 23:41:45 | INFO     | app.llm_client:initialize_vllm:51 -   enforce_eager: True
+2025-08-20 23:41:45 | INFO     | app.llm_client:initialize_vllm:51 -   tensor_parallel_size: 1
+2025-08-20 23:41:45 | INFO     | app.llm_client:initialize_vllm:51 -   trust_remote_code: True
+2025-08-20 23:41:45 | INFO     | app.llm_client:initialize_vllm:51 -   disable_custom_all_reduce: True
+2025-08-20 23:41:45 | INFO     | app.llm_client:initialize_vllm:51 -   max_num_seqs: 4
+2025-08-20 23:41:45 | INFO     | app.llm_client:initialize_vllm:51 -   limit_mm_per_prompt: {'image': 3}
+2025-08-20 23:42:17 | INFO     | app.llm_client:initialize_vllm:54 - vLLM model loaded successfully!
+2025-08-20 23:42:21 | INFO     | app.routers.upload:upload_files:37 - Uploading 1 files for job: Senior Software Engineer
+2025-08-20 23:42:21 | INFO     | app.routers.upload:upload_files:49 - Converted sample.pdf to 1 images.
+2025-08-20 23:42:21 | INFO     | app.routers.upload:upload_files:58 - Checking if candidate exists by resume hash: dacf2179a9c85d8c37071c928f33c5d9330f2ec89cc2e8b5f9d3c36a24a2de4b
+2025-08-20 23:42:21 | INFO     | app.routers.upload:upload_files:74 - Candidate not found with resume-hash:[dacf2179a9c85d8c37071c928f33c5d9330f2ec89cc2e8b5f9d3c36a24a2de4b]. Creating new candidate and evaluating for this job.
+2025-08-20 23:43:19 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-20 23:43:24 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-20 23:43:24 | INFO     | app.llm_client:initialize_vllm:20 - Setting vLLM environment variables from config:
+2025-08-20 23:43:24 | INFO     | app.llm_client:initialize_vllm:25 -   PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True,max_split_size_mb:512
+2025-08-20 23:43:24 | INFO     | app.llm_client:initialize_vllm:25 -   CUDA_VISIBLE_DEVICES=0
+2025-08-20 23:43:24 | INFO     | app.llm_client:initialize_vllm:25 -   CUDA_LAUNCH_BLOCKING=0
+2025-08-20 23:43:24 | INFO     | app.llm_client:initialize_vllm:25 -   TORCH_CUDA_ALLOC_SYNC_MIN_VERSION=1
+2025-08-20 23:43:24 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_USE_TRITON_FLASH_ATTN=false
+2025-08-20 23:43:24 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_WORKER_MULTIPROC_METHOD=fork
+2025-08-20 23:43:24 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_ATTENTION_BACKEND=XFORMERS
+2025-08-20 23:43:24 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_NO_USAGE_STATS=1
+2025-08-20 23:43:24 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_ENABLE_V1_MULTIMODAL=true
+2025-08-20 23:43:24 | INFO     | app.llm_client:initialize_vllm:34 - Loading vLLM model: Qwen/Qwen2.5-Omni-7B
+2025-08-20 23:43:24 | INFO     | app.llm_client:initialize_vllm:49 - vLLM Configuration:
+2025-08-20 23:43:24 | INFO     | app.llm_client:initialize_vllm:51 -   model: Qwen/Qwen2.5-Omni-7B
+2025-08-20 23:43:24 | INFO     | app.llm_client:initialize_vllm:51 -   gpu_memory_utilization: 0.65
+2025-08-20 23:43:24 | INFO     | app.llm_client:initialize_vllm:51 -   max_model_len: 32768
+2025-08-20 23:43:24 | INFO     | app.llm_client:initialize_vllm:51 -   enforce_eager: True
+2025-08-20 23:43:24 | INFO     | app.llm_client:initialize_vllm:51 -   tensor_parallel_size: 1
+2025-08-20 23:43:24 | INFO     | app.llm_client:initialize_vllm:51 -   trust_remote_code: True
+2025-08-20 23:43:24 | INFO     | app.llm_client:initialize_vllm:51 -   disable_custom_all_reduce: True
+2025-08-20 23:43:24 | INFO     | app.llm_client:initialize_vllm:51 -   max_num_seqs: 4
+2025-08-20 23:43:24 | INFO     | app.llm_client:initialize_vllm:51 -   limit_mm_per_prompt: {'image': 3}
+2025-08-20 23:43:58 | INFO     | app.llm_client:initialize_vllm:54 - vLLM model loaded successfully!
+2025-08-20 23:44:10 | INFO     | app.routers.upload:upload_files:37 - Uploading 1 files for job: Senior Software Engineer
+2025-08-20 23:44:10 | INFO     | app.routers.upload:upload_files:50 - Converted sample.pdf to 1 images.
+2025-08-20 23:44:10 | INFO     | app.routers.upload:upload_files:59 - Checking if candidate exists by resume hash: dacf2179a9c85d8c37071c928f33c5d9330f2ec89cc2e8b5f9d3c36a24a2de4b
+2025-08-20 23:44:10 | INFO     | app.routers.upload:upload_files:75 - Candidate not found with resume-hash:[dacf2179a9c85d8c37071c928f33c5d9330f2ec89cc2e8b5f9d3c36a24a2de4b]. Creating new candidate and evaluating for this job.
+2025-08-20 23:45:27 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-20 23:45:32 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-20 23:45:32 | INFO     | app.llm_client:initialize_vllm:20 - Setting vLLM environment variables from config:
+2025-08-20 23:45:32 | INFO     | app.llm_client:initialize_vllm:25 -   PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True,max_split_size_mb:512
+2025-08-20 23:45:32 | INFO     | app.llm_client:initialize_vllm:25 -   CUDA_VISIBLE_DEVICES=0
+2025-08-20 23:45:32 | INFO     | app.llm_client:initialize_vllm:25 -   CUDA_LAUNCH_BLOCKING=0
+2025-08-20 23:45:32 | INFO     | app.llm_client:initialize_vllm:25 -   TORCH_CUDA_ALLOC_SYNC_MIN_VERSION=1
+2025-08-20 23:45:32 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_USE_TRITON_FLASH_ATTN=false
+2025-08-20 23:45:32 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_WORKER_MULTIPROC_METHOD=fork
+2025-08-20 23:45:32 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_ATTENTION_BACKEND=XFORMERS
+2025-08-20 23:45:32 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_NO_USAGE_STATS=1
+2025-08-20 23:45:32 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_ENABLE_V1_MULTIMODAL=true
+2025-08-20 23:45:32 | INFO     | app.llm_client:initialize_vllm:34 - Loading vLLM model: Qwen/Qwen2.5-Omni-7B
+2025-08-20 23:45:32 | INFO     | app.llm_client:initialize_vllm:49 - vLLM Configuration:
+2025-08-20 23:45:32 | INFO     | app.llm_client:initialize_vllm:51 -   model: Qwen/Qwen2.5-Omni-7B
+2025-08-20 23:45:32 | INFO     | app.llm_client:initialize_vllm:51 -   gpu_memory_utilization: 0.65
+2025-08-20 23:45:32 | INFO     | app.llm_client:initialize_vllm:51 -   max_model_len: 32768
+2025-08-20 23:45:32 | INFO     | app.llm_client:initialize_vllm:51 -   enforce_eager: True
+2025-08-20 23:45:32 | INFO     | app.llm_client:initialize_vllm:51 -   tensor_parallel_size: 1
+2025-08-20 23:45:32 | INFO     | app.llm_client:initialize_vllm:51 -   trust_remote_code: True
+2025-08-20 23:45:32 | INFO     | app.llm_client:initialize_vllm:51 -   disable_custom_all_reduce: True
+2025-08-20 23:45:32 | INFO     | app.llm_client:initialize_vllm:51 -   max_num_seqs: 4
+2025-08-20 23:45:32 | INFO     | app.llm_client:initialize_vllm:51 -   limit_mm_per_prompt: {'image': 3}
+2025-08-20 23:46:05 | INFO     | app.llm_client:initialize_vllm:54 - vLLM model loaded successfully!
+2025-08-20 23:46:44 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-20 23:46:49 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-20 23:46:49 | INFO     | app.llm_client:initialize_vllm:20 - Setting vLLM environment variables from config:
+2025-08-20 23:46:49 | INFO     | app.llm_client:initialize_vllm:25 -   PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True,max_split_size_mb:512
+2025-08-20 23:46:49 | INFO     | app.llm_client:initialize_vllm:25 -   CUDA_VISIBLE_DEVICES=0
+2025-08-20 23:46:49 | INFO     | app.llm_client:initialize_vllm:25 -   CUDA_LAUNCH_BLOCKING=0
+2025-08-20 23:46:49 | INFO     | app.llm_client:initialize_vllm:25 -   TORCH_CUDA_ALLOC_SYNC_MIN_VERSION=1
+2025-08-20 23:46:49 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_USE_TRITON_FLASH_ATTN=false
+2025-08-20 23:46:49 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_WORKER_MULTIPROC_METHOD=fork
+2025-08-20 23:46:49 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_ATTENTION_BACKEND=XFORMERS
+2025-08-20 23:46:49 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_NO_USAGE_STATS=1
+2025-08-20 23:46:49 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_ENABLE_V1_MULTIMODAL=true
+2025-08-20 23:46:49 | INFO     | app.llm_client:initialize_vllm:34 - Loading vLLM model: Qwen/Qwen2.5-Omni-7B
+2025-08-20 23:46:49 | INFO     | app.llm_client:initialize_vllm:49 - vLLM Configuration:
+2025-08-20 23:46:49 | INFO     | app.llm_client:initialize_vllm:51 -   model: Qwen/Qwen2.5-Omni-7B
+2025-08-20 23:46:49 | INFO     | app.llm_client:initialize_vllm:51 -   gpu_memory_utilization: 0.65
+2025-08-20 23:46:49 | INFO     | app.llm_client:initialize_vllm:51 -   max_model_len: 32768
+2025-08-20 23:46:49 | INFO     | app.llm_client:initialize_vllm:51 -   enforce_eager: True
+2025-08-20 23:46:49 | INFO     | app.llm_client:initialize_vllm:51 -   tensor_parallel_size: 1
+2025-08-20 23:46:49 | INFO     | app.llm_client:initialize_vllm:51 -   trust_remote_code: True
+2025-08-20 23:46:49 | INFO     | app.llm_client:initialize_vllm:51 -   disable_custom_all_reduce: True
+2025-08-20 23:46:49 | INFO     | app.llm_client:initialize_vllm:51 -   max_num_seqs: 4
+2025-08-20 23:46:49 | INFO     | app.llm_client:initialize_vllm:51 -   limit_mm_per_prompt: {'image': 3}
+2025-08-20 23:47:22 | INFO     | app.llm_client:initialize_vllm:54 - vLLM model loaded successfully!
+2025-08-20 23:47:33 | INFO     | app.routers.upload:upload_files:37 - Uploading 1 files for job: Senior Software Engineer
+2025-08-20 23:47:33 | INFO     | app.routers.upload:upload_files:51 - Converted sample.pdf to 1 images.
+2025-08-20 23:47:33 | INFO     | app.routers.upload:upload_files:57 - Checking if candidate exists by resume hash: dacf2179a9c85d8c37071c928f33c5d9330f2ec89cc2e8b5f9d3c36a24a2de4b
+2025-08-20 23:47:33 | INFO     | app.routers.upload:upload_files:73 - Candidate not found with resume-hash:[dacf2179a9c85d8c37071c928f33c5d9330f2ec89cc2e8b5f9d3c36a24a2de4b]. Creating new candidate and evaluating for this job.
+2025-08-20 23:47:33 | INFO     | app.llm_client:query_vllm:98 - Generating response with 1 images and max_tokens=1500
+2025-08-20 23:47:40 | INFO     | app.process:evaluate_candidate_and_create:20 - LLM evaluated candidate [resume-hash:dacf2179a9c85d8c37071c928f33c5d9330f2ec89cc2e8b5f9d3c36a24a2de4b]: LLMOutcome.SHORTLISTED
+2025-08-20 23:47:40 | INFO     | app.db:get_db:31 - Database connection opened: sqlite:////home/azureuser/localfiles/resume-parser/database/dev_candidates.db
+2025-08-20 23:57:12 | INFO     | app.logger:setup_logging:34 - Logger setup complete.
+2025-08-20 23:57:12 | INFO     | app.llm_client:initialize_vllm:20 - Setting vLLM environment variables from config:
+2025-08-20 23:57:12 | INFO     | app.llm_client:initialize_vllm:25 -   PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True,max_split_size_mb:512
+2025-08-20 23:57:12 | INFO     | app.llm_client:initialize_vllm:25 -   CUDA_VISIBLE_DEVICES=0
+2025-08-20 23:57:12 | INFO     | app.llm_client:initialize_vllm:25 -   CUDA_LAUNCH_BLOCKING=0
+2025-08-20 23:57:12 | INFO     | app.llm_client:initialize_vllm:25 -   TORCH_CUDA_ALLOC_SYNC_MIN_VERSION=1
+2025-08-20 23:57:12 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_USE_TRITON_FLASH_ATTN=false
+2025-08-20 23:57:12 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_WORKER_MULTIPROC_METHOD=fork
+2025-08-20 23:57:12 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_ATTENTION_BACKEND=XFORMERS
+2025-08-20 23:57:12 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_NO_USAGE_STATS=1
+2025-08-20 23:57:12 | INFO     | app.llm_client:initialize_vllm:25 -   VLLM_ENABLE_V1_MULTIMODAL=true
+2025-08-20 23:57:12 | INFO     | app.llm_client:initialize_vllm:34 - Loading vLLM model: Qwen/Qwen2.5-Omni-7B
+2025-08-20 23:57:12 | INFO     | app.llm_client:initialize_vllm:49 - vLLM Configuration:
+2025-08-20 23:57:12 | INFO     | app.llm_client:initialize_vllm:51 -   model: Qwen/Qwen2.5-Omni-7B
+2025-08-20 23:57:12 | INFO     | app.llm_client:initialize_vllm:51 -   gpu_memory_utilization: 0.65
+2025-08-20 23:57:12 | INFO     | app.llm_client:initialize_vllm:51 -   max_model_len: 32768
+2025-08-20 23:57:12 | INFO     | app.llm_client:initialize_vllm:51 -   enforce_eager: True
+2025-08-20 23:57:12 | INFO     | app.llm_client:initialize_vllm:51 -   tensor_parallel_size: 1
+2025-08-20 23:57:12 | INFO     | app.llm_client:initialize_vllm:51 -   trust_remote_code: True
+2025-08-20 23:57:12 | INFO     | app.llm_client:initialize_vllm:51 -   disable_custom_all_reduce: True
+2025-08-20 23:57:12 | INFO     | app.llm_client:initialize_vllm:51 -   max_num_seqs: 4
+2025-08-20 23:57:12 | INFO     | app.llm_client:initialize_vllm:51 -   limit_mm_per_prompt: {'image': 3}
+2025-08-20 23:57:45 | INFO     | app.llm_client:initialize_vllm:54 - vLLM model loaded successfully!
