@@ -10,6 +10,7 @@ class JobBase(BaseModel):
     description: str
 
 class Job(JobBase):
+    id: int
     created_at: datetime    
     class Config:
         orm_mode = True

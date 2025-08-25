@@ -57,7 +57,8 @@ export default function CandidateDashboard() {
   const [selectedJob, setSelectedJob] = useState<any>(null)
   const [jobs, setJobs] = useState<any[]>([])
   const [open, setOpen] = useState(false)
-  const [isOnline, setIsOnline] = useState(false)
+  const [backendStatus, setBackendStatus] = useState("offline")
+  const [modelStatus, setModelStatus] = useState("offline")
   const [lastUpdated, setLastUpdated] = useState(new Date().toLocaleString())
   const [candidates, setCandidates] = useState<any[]>([])
   const [sortColumn, setSortColumn] = useState<string | null>(null)
@@ -109,7 +110,8 @@ export default function CandidateDashboard() {
     if (selectedJob) {
       const fetchCandidates = async () => {
         try {
-                      const response = await fetch(`${API_BASE_URL}/api/applications/${selectedJob.id}`);
+          console.log("Fetching candidates for job:", selectedJob.id);
+          const response = await fetch(`${API_BASE_URL}/api/applications/${selectedJob.id}`);
           const data = await response.json();
           setCandidates(Array.isArray(data) ? data : []);
           setLastUpdated(new Date().toLocaleString());
@@ -303,23 +305,69 @@ export default function CandidateDashboard() {
   useEffect(() => {
     const checkStatus = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/status`);
-        console.log("API Status:", response);
-        if (response.ok) {
-          const data = await response.json();
+        // Check backend status
+        const statusResponse = await fetch(`${API_BASE_URL}/api/status`);
+        if (statusResponse.ok) {
+          setBackendStatus("online");
           
-          setIsOnline(data.backend_status === 'online');
+          // Check model status
+          try {
+            const healthResponse = await fetch(`${API_BASE_URL}/api/health`);
+            if (healthResponse.ok) {
+              const healthData = await healthResponse.json();
+              const aiModelStatus = healthData.dependencies?.ai_model || "error";
+              setModelStatus(aiModelStatus === "ok" ? "online" : "offline");
+            } else {
+              setModelStatus("offline");
+            }
+          } catch {
+            setModelStatus("offline");
+          }
         } else {
-          setIsOnline(false);
+          setBackendStatus("offline");
+          setModelStatus("offline");
         }
       } catch (error) {
-        setIsOnline(false);
+        setBackendStatus("offline");
+        setModelStatus("offline");
       }
     };
+    
     checkStatus();
     const interval = setInterval(checkStatus, 30000); // Check every 30 seconds
     return () => clearInterval(interval);
   }, []);
+
+  // Status helper functions
+  const getStatusColor = () => {
+    if (backendStatus === "online" && modelStatus === "online") {
+      return "bg-green-500"; // Both online - green
+    } else if (backendStatus === "online" || modelStatus === "online") {
+      return "bg-yellow-500";
+    } else {
+      return "bg-red-500";
+    }
+  };
+
+  const getStatusText = () => {
+    if (backendStatus === "online" && modelStatus === "online") {
+      return "System Online";
+    } else if (backendStatus === "online" && modelStatus === "offline") {
+      return "AI Model Offline";
+    } else if (backendStatus === "offline" && modelStatus === "online") {
+      return "Backend Offline";
+    } else {
+      return "Offline";
+    }
+  };
+
+  const getStatusIcon = () => {
+    if (backendStatus === "online" && modelStatus === "online") {
+      return "animate-pulse";
+    } else {
+      return "";
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -363,9 +411,9 @@ export default function CandidateDashboard() {
                   <CommandList>
                     <CommandEmpty>No job title found.</CommandEmpty>
                     <CommandGroup>
-                      {jobs.map((job) => (
+                      {jobs.map((job, index) => (
                         <CommandItem
-                          key={job.id}
+                          key={job.id ? `job-${job.id}` : `job-${index}`}
                           value={job.title}
                           onSelect={() => {
                             setSelectedJob(job);
@@ -450,8 +498,16 @@ export default function CandidateDashboard() {
                 <span>Refresh</span>
               </Button>
               <div className="flex items-center space-x-2">
-                <div className={cn("w-3 h-3 rounded-full", isOnline ? "bg-green-500 animate-pulse" : "bg-red-500")} />
-                <span className="text-sm text-gray-600">{isOnline ? "API Online" : "API Offline"}</span>
+                <div 
+                  className={cn("w-3 h-3 rounded-full", getStatusColor(), getStatusIcon())} 
+                  title={getStatusText()}
+                />
+                <span 
+                  className="text-sm text-gray-600 cursor-help" 
+                  title={getStatusText()}
+                >
+                  {getStatusText()}
+                </span>
               </div>
             </div>
             {isClient && <div className="text-sm text-gray-500">Last Updated: {lastUpdated}</div>}

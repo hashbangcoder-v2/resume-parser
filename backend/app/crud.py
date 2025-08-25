@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from app import models, schemas
+from datetime import datetime
 
 def get_jobs(db: Session, job_id: int = None, title: str = None, skip: int = 0, limit: int = 100):
     """
@@ -16,8 +17,9 @@ def get_jobs(db: Session, job_id: int = None, title: str = None, skip: int = 0, 
     else:
         return query.offset(skip).limit(limit).all()
 
-def create_job(db: Session, job: schemas.Job):
-    db_job = models.Job(title=job.title, description=job.description, created_at=job.created_at)
+def create_job(db: Session, job: schemas.JobBase):
+    
+    db_job = models.Job(title=job.title, description=job.description, created_at=datetime.now())
     db.add(db_job)
     db.commit()
     db.refresh(db_job)
