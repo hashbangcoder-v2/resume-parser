@@ -3,8 +3,17 @@
 
 from typing import List
 from PIL import Image
+from pathlib import Path
+from functools import lru_cache
+from app.config import get_config
 
-from app.common_utils import get_system_prompt
+cfg = get_config()
+
+@lru_cache(maxsize=1)
+def get_system_prompt() -> str:
+    prompt_path = Path(cfg.models.prompt_path)
+    with open(prompt_path, "r") as f:
+        return f.read()
 
 
 def generate_llm_prompt(images: List[Image.Image], job_description: str) -> dict:

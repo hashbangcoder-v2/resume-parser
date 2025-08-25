@@ -11,5 +11,3 @@ database:
 logging:
   level: "INFO"
 
-ai_model:
-  endpoint: "http://defaults.to/this/if/not/overridden" 

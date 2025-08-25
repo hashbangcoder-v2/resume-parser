@@ -1,7 +1,6 @@
 from sqlalchemy.orm import Session
 from app import models, schemas
 
-# Job CRUD
 def get_jobs(db: Session, job_id: int = None, title: str = None, skip: int = 0, limit: int = 100):
     """
     Retrieve jobs with optional filters:
@@ -17,14 +16,13 @@ def get_jobs(db: Session, job_id: int = None, title: str = None, skip: int = 0, 
     else:
         return query.offset(skip).limit(limit).all()
 
-def create_job(db: Session, job: schemas.JobCreate):
-    db_job = models.Job(title=job.title, description=job.description)
+def create_job(db: Session, job: schemas.Job):
+    db_job = models.Job(title=job.title, description=job.description, created_at=job.created_at)
     db.add(db_job)
     db.commit()
     db.refresh(db_job)
     return db_job
 
-# Candidate CRUD
 
 def get_candidates(
     db: Session,

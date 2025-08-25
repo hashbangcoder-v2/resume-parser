@@ -4,19 +4,20 @@ from typing import List
 from app import crud, schemas
 from app.db import get_db
 from app.logger import logger
-
+from datetime import datetime
 router = APIRouter(
     prefix="/api/jobs",
     tags=["jobs"],
 )
 
 @router.post("", response_model=schemas.Job)
-def create_job(job: schemas.JobCreate, db: Session = Depends(get_db)):
+def create_job(job: schemas.JobBase, db: Session = Depends(get_db)):
     logger.info(f"Creating job: {job}")
-    db_job = crud.get_job_by_title(db, title=job.title)
+    db_job = crud.get_jobs(db, title=job.title)
     if db_job:
-        raise HTTPException(status_code=400, detail="Job title already registered")
-    return crud.create_job(db=db, job=job)
+        raise HTTPException(status_code=400, detail="Job already exists")
+    new_job = schemas.Job(title=job.title, description=job.description, created_at=datetime.now())
+    return crud.create_job(db=db, job=new_job)
 
 @router.get("", response_model=List[schemas.Job])
 def read_jobs(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):

@@ -10,3 +10,5 @@ launch.json
 test-files/*
 vllm_server.log
 data_retriever/*
+backend/app/job_desc/*
+!backend/app/job_desc/.gitkeep

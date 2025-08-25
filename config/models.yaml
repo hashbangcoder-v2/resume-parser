@@ -1,9 +1,12 @@
 # LLM/VLM configurations
 
 default_model: "Qwen/Qwen2.5-Omni-7B"
+prompt_path: "${oc.env:PROJECT_ROOT}/prompts/prompt.txt"
+job_desc_path: "${oc.env:PROJECT_ROOT}/job_desc"
 
 models:
   "Qwen/Qwen2.5-Omni-7B":
+    
     display_name: "Qwen 2.5 Omni 7B"
     gpu_memory_utilization: 0.85
     max_model_len: 32768

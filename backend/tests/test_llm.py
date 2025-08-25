@@ -13,7 +13,7 @@ from omegaconf import OmegaConf
 
 from app.schemas import LLMResponse, LLMOutcome
 from app.model_utils import generate_llm_prompt
-from app.common_utils import get_system_prompt
+from app.model_utils import get_system_prompt
 
 
 class TestLLMFunctionality(unittest.TestCase):

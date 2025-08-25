@@ -66,12 +66,12 @@ async def upload_files(
             else:
                 #  candidate exists but has not applied to this job
                 logger.warning(f"Candidate {candidate.name} / {candidate.email} exists but has not applied to this job: {job_title}. Evaluating for this job.")
-                llm_response = await evaluate_candidate_and_create(cfg, resume_images, job, db_session, resume_hash, new_candidate=False)
+                llm_response = await evaluate_candidate_and_create(cfg, resume_images, job, db_session, resume_hash, candidate=candidate)
                 processed_files.append(_file.filename)
         # candidate not found, create a new candidate and evaluate for this job
         else:
             logger.info(f"Candidate not found with resume-hash:[{resume_hash}]. Evaluating and creating new candidate...")                        
-            llm_response = await evaluate_candidate_and_create(cfg, resume_images, job, db_session, resume_hash, new_candidate=True)                    
+            llm_response = await evaluate_candidate_and_create(cfg, resume_images, job, db_session, resume_hash)                    
             processed_files.append(_file.filename)
             
         file_url = store_file(cfg, file_bytes, f"{Path(_file.filename).stem}_{resume_hash[:8]}.pdf")

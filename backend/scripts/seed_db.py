@@ -30,7 +30,7 @@ mock_data = {
             "fileUrl": "/files/bob-smith-resume.pdf",
         },
     ],
-    "Product Manager": [
+    "Senior AI Engineer": [
         {
             "id": 1,
             "name": "Frank Thompson",
@@ -43,7 +43,7 @@ mock_data = {
             "fileUrl": "/files/frank-thompson-resume.pdf",
         },
     ],
-    "UX Designer": [
+    "Principal AI Research Scientist": [
         {
             "id": 1,
             "name": "Henry Chang",
@@ -55,18 +55,14 @@ mock_data = {
             "reason": "Outstanding portfolio with user-centered design approach",
             "fileUrl": "/files/henry-chang-portfolio.pdf",
         },
-        {
-            "id": 2,
-            "name": "Iris Rodriguez",
-            "email": "iris.r@example.com",
-            "lastUpdated": "2024-01-15 10:15",
-            "status": "Rejected",
-            "finalStatus": "Rejected",
-            "appliedOn": "09-01-2024 14:20",
-            "reason": "Portfolio doesn't align with our design standards",
-            "fileUrl": "/files/iris-rodriguez-portfolio.pdf",
-        },
     ],
+}
+
+
+mock_job_desc = {
+    "Senior Software Engineer": '../app/job_desc/senior_software_engineer.txt',
+    "Senior AI Engineer": '../app/job_desc/senior_ai_engineer.txt',
+    "Principal AI Research Scientist": '../app/job_desc/principal_research_scientist.txt'
 }
 
 def seed_database():
@@ -74,8 +70,7 @@ def seed_database():
     Base.metadata.create_all(bind=engine)
 
     db = next(get_db())
-    # Wipe all data in mock db
-    # Delete from Application first (depends on Candidate and Job), then Candidate, then Job
+    # delete all mock data
     db.query(Application).delete()
     db.query(Candidate).delete()
     db.query(Job).delete()
@@ -86,7 +81,9 @@ def seed_database():
         jobs = {}
         for job_title in mock_data.keys():
             if not db.query(Job).filter(Job.title == job_title).first():
-                job = Job(title=job_title, description=f"Description for {job_title}")
+                with open(mock_job_desc[job_title], 'r') as file:
+                    description = file.read()
+                job = Job(title=job_title, description=description)
                 db.add(job)
                 db.commit()
                 db.refresh(job)
@@ -94,7 +91,7 @@ def seed_database():
             else:
                 jobs[job_title] = db.query(Job).filter(Job.title == job_title).first()
 
-        # Add Candidates and Applications
+        #Candidates and Applications
         for job_title, candidates_list in mock_data.items():
             job = jobs[job_title]
             for candidate_data in candidates_list:

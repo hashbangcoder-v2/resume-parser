@@ -1,19 +1,16 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Optional, List
 from enum import Enum
 
 # Job Schemas
+
 class JobBase(BaseModel):
     title: str
-    description: Optional[str] = None
-
-class JobCreate(JobBase):
-    pass
+    description: str
 
 class Job(JobBase):
-    id: int
-    created_at: datetime
+    created_at: datetime    
     class Config:
         orm_mode = True
 

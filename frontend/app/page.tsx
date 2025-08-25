@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import {
   Upload,
   RefreshCw,
@@ -19,6 +20,7 @@ import {
   ArrowDown,
   ExternalLink,
   User,
+  Plus,
 } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
@@ -63,12 +65,17 @@ export default function CandidateDashboard() {
   const [userInfo, setUserInfo] = useState({ name: "", email: "" })
   const [isClient, setIsClient] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
+  const [showCreateJobModal, setShowCreateJobModal] = useState(false)
+  const [newJobTitle, setNewJobTitle] = useState("")
+  const [newJobDescription, setNewJobDescription] = useState("")
+  const [isCreatingJob, setIsCreatingJob] = useState(false)
 
   useEffect(() => {
     setIsClient(true)
   }, [])
   
-  // Fetch Jobs on component mount
+  // Fetch Jobs 
   useEffect(() => {
     const fetchJobs = async () => {
       try {
@@ -148,7 +155,8 @@ export default function CandidateDashboard() {
     input.accept = ".pdf"
     input.onchange = async (e) => {
       const files = (e.target as HTMLInputElement).files
-      if (files) {
+      if (files && files.length > 0) {
+        setIsUploading(true);
         const formData = new FormData();
         Array.from(files).forEach(file => {
           formData.append("pdf_files", file);
@@ -165,11 +173,57 @@ export default function CandidateDashboard() {
           handleRefresh(); // Refresh candidates list
         } catch (error) {
           console.error("File upload failed:", error);
+        } finally {
+          setIsUploading(false);
         }
       }
     }
     input.click()
   }
+
+  const handleCreateJob = async () => {
+    if (!newJobTitle.trim() || !newJobDescription.trim()) {
+      alert("Please fill in both title and description");
+      return;
+    }
+
+    setIsCreatingJob(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/jobs`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: newJobTitle.trim(),
+          description: newJobDescription.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const newJob = await response.json();
+      console.log("Job created:", newJob);
+      
+      // Refresh jobs list
+      const jobsResponse = await fetch(`${API_BASE_URL}/api/jobs`);
+      const updatedJobs = await jobsResponse.json();
+      setJobs(updatedJobs);
+      
+      // Reset form and close modal
+      setNewJobTitle("");
+      setNewJobDescription("");
+      setShowCreateJobModal(false);
+      
+    } catch (error) {
+      console.error("Failed to create job:", error);
+      alert("Failed to create job. Please try again.");
+    } finally {
+      setIsCreatingJob(false);
+    }
+  };
 
   const handleSort = (column: string) => {
     if (sortColumn === column) {
@@ -327,14 +381,69 @@ export default function CandidateDashboard() {
                 </Command>
               </PopoverContent>
             </Popover>
+            
+            {/* Create Job Button */}
+            <Dialog open={showCreateJobModal} onOpenChange={setShowCreateJobModal}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="flex items-center space-x-2">
+                  <Plus className="h-4 w-4" />
+                  <span>Create Job</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader>
+                  <DialogTitle>Create New Job</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 pt-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">Job Title</label>
+                    <input
+                      type="text"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="e.g., Senior Software Engineer"
+                      value={newJobTitle}
+                      onChange={(e) => setNewJobTitle(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">Job Description</label>
+                    <textarea
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical"
+                      placeholder="Enter the complete job description, requirements, and qualifications..."
+                      value={newJobDescription}
+                      onChange={(e) => setNewJobDescription(e.target.value)}
+                      rows={8}
+                    />
+                  </div>
+                  <div className="flex justify-end space-x-3 pt-4">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setShowCreateJobModal(false);
+                        setNewJobTitle("");
+                        setNewJobDescription("");
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleCreateJob}
+                      disabled={isCreatingJob || !newJobTitle.trim() || !newJobDescription.trim()}
+                    >
+                      {isCreatingJob ? "Creating..." : "Create Job"}
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
 
           {/* Right Controls */}
           <div className="flex flex-col items-end space-y-3">
             <div className="flex items-center space-x-4">
-              <Button onClick={handleFileUpload} className="flex items-center space-x-2">
-                <Upload className="h-4 w-4" />
-                <span>Upload Resumes</span>
+              <Button onClick={handleFileUpload} disabled={isUploading} className="flex items-center space-x-2">
+                <Upload className={cn("h-4 w-4", isUploading && "animate-pulse")} />
+                <span>{isUploading ? "Uploading..." : "Upload Resumes"}</span>
               </Button>
               <Button variant="outline" onClick={handleRefresh} className="flex items-center space-x-2 bg-transparent">
                 <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin-slow")} />
