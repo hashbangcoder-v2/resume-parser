@@ -1,8 +1,8 @@
 # LLM/VLM configurations
 
 default_model: "Qwen/Qwen2.5-Omni-7B"
-prompt_path: "${oc.env:PROJECT_ROOT}/prompts/prompt.txt"
-job_desc_path: "${oc.env:PROJECT_ROOT}/job_desc"
+prompt_path: "${oc.env:PROJECT_ROOT}/backend/app/prompts/system_prompt.txt"
+job_desc_path: "${oc.env:PROJECT_ROOT}/backend/app/job_desc"
 
 models:
   "Qwen/Qwen2.5-Omni-7B":

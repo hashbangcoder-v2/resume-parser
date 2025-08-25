@@ -172,7 +172,7 @@ export default function CandidateDashboard() {
           });
           const result = await response.json();
           console.log("Upload result:", result);
-          handleRefresh(); // Refresh candidates list
+          handleRefresh(); 
         } catch (error) {
           console.error("File upload failed:", error);
         } finally {
@@ -338,8 +338,8 @@ export default function CandidateDashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  // Status helper functions
-  const getStatusColor = () => {
+  // System status helper functions
+  const getSystemStatusColor = () => {
     if (backendStatus === "online" && modelStatus === "online") {
       return "bg-green-500"; // Both online - green
     } else if (backendStatus === "online" || modelStatus === "online") {
@@ -349,7 +349,7 @@ export default function CandidateDashboard() {
     }
   };
 
-  const getStatusText = () => {
+  const getSystemStatusText = () => {
     if (backendStatus === "online" && modelStatus === "online") {
       return "System Online";
     } else if (backendStatus === "online" && modelStatus === "offline") {
@@ -361,7 +361,7 @@ export default function CandidateDashboard() {
     }
   };
 
-  const getStatusIcon = () => {
+  const getSystemStatusAnimation = () => {
     if (backendStatus === "online" && modelStatus === "online") {
       return "animate-pulse";
     } else {
@@ -499,14 +499,14 @@ export default function CandidateDashboard() {
               </Button>
               <div className="flex items-center space-x-2">
                 <div 
-                  className={cn("w-3 h-3 rounded-full", getStatusColor(), getStatusIcon())} 
-                  title={getStatusText()}
+                  className={cn("w-3 h-3 rounded-full", getSystemStatusColor(), getSystemStatusAnimation())} 
+                  title={getSystemStatusText()}
                 />
                 <span 
                   className="text-sm text-gray-600 cursor-help" 
-                  title={getStatusText()}
+                  title={getSystemStatusText()}
                 >
-                  {getStatusText()}
+                  {getSystemStatusText()}
                 </span>
               </div>
             </div>

@@ -11,7 +11,7 @@ cfg = get_config()
 
 @lru_cache(maxsize=1)
 def get_system_prompt() -> str:
-    prompt_path = Path(cfg.models.prompt_path)
+    prompt_path = Path(cfg.prompt_path)
     with open(prompt_path, "r") as f:
         return f.read()
 
