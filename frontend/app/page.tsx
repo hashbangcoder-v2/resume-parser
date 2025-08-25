@@ -102,9 +102,9 @@ export default function CandidateDashboard() {
     if (selectedJob) {
       const fetchCandidates = async () => {
         try {
-          const response = await fetch(`${API_BASE_URL}/api/jobs/${selectedJob.id}/applications`);
+                      const response = await fetch(`${API_BASE_URL}/api/applications/${selectedJob.id}`);
           const data = await response.json();
-          setCandidates(data);
+          setCandidates(Array.isArray(data) ? data : []);
           setLastUpdated(new Date().toLocaleString());
         } catch (error) {
           console.error("Failed to fetch candidates:", error);
@@ -122,7 +122,7 @@ export default function CandidateDashboard() {
       setIsRefreshing(true);
       const fetchCandidates = async () => {
         try {
-          const response = await fetch(`${API_BASE_URL}/api/jobs/${selectedJob.id}/applications`);
+          const response = await fetch(`${API_BASE_URL}/api/applications/${selectedJob.id}`);
           const data = await response.json();
           setCandidates(data);
           setLastUpdated(new Date().toLocaleString());
@@ -136,8 +136,12 @@ export default function CandidateDashboard() {
     }
   }
 
-  const handleFileUpload = () => {
-    // Create a file input element
+    const handleFileUpload = () => {
+    if (!selectedJob) {
+      alert("Please select a job first before uploading resumes.");
+      return;
+    }
+
     const input = document.createElement("input")
     input.type = "file"
     input.multiple = true
@@ -149,6 +153,7 @@ export default function CandidateDashboard() {
         Array.from(files).forEach(file => {
           formData.append("pdf_files", file);
         });
+        formData.append("job_title", selectedJob.title);
 
         try {
           const response = await fetch(`${API_BASE_URL}/api/upload`, {
@@ -211,7 +216,7 @@ export default function CandidateDashboard() {
     window.open(fileUrl, "_blank")
   }
 
-  const sortedCandidates = [...candidates].sort((a, b) => {
+  const sortedCandidates = [...(candidates || [])].sort((a, b) => {
     if (!sortColumn) return 0
 
     let aValue, bValue;
@@ -245,8 +250,10 @@ export default function CandidateDashboard() {
     const checkStatus = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/api/status`);
+        console.log("API Status:", response);
         if (response.ok) {
           const data = await response.json();
+          
           setIsOnline(data.backend_status === 'online');
         } else {
           setIsOnline(false);
