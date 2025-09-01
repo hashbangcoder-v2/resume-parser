@@ -10,7 +10,8 @@ from app.models import Job, Candidate
 
 
 async def evaluate_candidate_and_create(cfg: DictConfig, images: List[Image.Image], job: Job, db_session: Session, resume_hash: str, candidate: Candidate = None):    
-    llm_response = await llm_client.get_model_response(OmegaConf.merge(cfg, cfg.models[cfg.default_model]), images, job.description)
+    # Use the model service for inference (no need to worry about config structure)
+    llm_response = await llm_client.get_model_response(cfg, images, job.description)
     if llm_response.outcome != schemas.LLMOutcome.FAILED.value:        
         if candidate is None:
             logger.info(f"LLM evaluated candidate [resume-hash:{resume_hash}]: {llm_response.outcome} : {llm_response.reason}")

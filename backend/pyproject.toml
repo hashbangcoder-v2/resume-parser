@@ -25,7 +25,12 @@ dependencies = [
 
 [project.scripts]
 wfc-serve = "app.main:main"
+wfc-model-serve = "model_service:main"
 wfc-db-seed = "scripts.seed_db:seed_database"
+
+[tool.setuptools]
+packages = ["app"]
+py-modules = ["model_service"]
 
 [build-system]
 requires = ["setuptools"]

@@ -22,6 +22,9 @@ import {
   User,
   Plus,
   FileText,
+  Cpu,
+  Layers,
+  Info,
 } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
@@ -59,7 +62,7 @@ export default function CandidateDashboard() {
   const [jobs, setJobs] = useState<any[]>([])
   const [open, setOpen] = useState(false)
   const [backendStatus, setBackendStatus] = useState("offline")
-  const [modelStatus, setModelStatus] = useState("offline")
+
   const [lastUpdated, setLastUpdated] = useState(new Date().toLocaleString())
   const [candidates, setCandidates] = useState<any[]>([])
   const [sortColumn, setSortColumn] = useState<string | null>(null)
@@ -75,6 +78,10 @@ export default function CandidateDashboard() {
   const [showJobDescriptionModal, setShowJobDescriptionModal] = useState(false)
   const [editingJobDescription, setEditingJobDescription] = useState("")
   const [isUpdatingJob, setIsUpdatingJob] = useState(false)
+  const [availableModels, setAvailableModels] = useState<any>(null)
+  const [currentModel, setCurrentModel] = useState<any>(null)
+  const [modelStatus, setModelStatus] = useState<"online" | "offline" | "swapping">("offline")
+  const [isSwappingModel, setIsSwappingModel] = useState(false)
 
   useEffect(() => {
     setIsClient(true)
@@ -107,6 +114,45 @@ export default function CandidateDashboard() {
       }
     };
     fetchUser();
+  }, []);
+
+  // Fetch available models
+  useEffect(() => {
+    const fetchModels = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/models/available`);
+        if (response.ok) {
+          const data = await response.json();
+          setAvailableModels(data);
+        } else {
+          console.warn("Models API not available yet");
+          setAvailableModels({ inference_modes: {} });
+        }
+        
+        // Get current model status
+        const statusResponse = await fetch(`${API_BASE_URL}/api/models/status`);
+        if (statusResponse.ok) {
+          const statusData = await statusResponse.json();
+          setCurrentModel(statusData);
+          
+          // Update model status based on response
+          if (statusData.status === "swapping") {
+            setModelStatus("swapping");
+          } else if (statusData.status === "idle" && statusData.current_model) {
+            setModelStatus("online");
+          } else {
+            setModelStatus("offline");
+          }
+        } else {
+          setModelStatus("offline");
+        }
+      } catch (error) {
+        console.error("Failed to fetch models:", error);
+        // Set empty state to prevent undefined errors
+        setAvailableModels({ inference_modes: {} });
+      }
+    };
+    fetchModels();
   }, []);
   
   // Fetch candidates when a job is selected
@@ -279,6 +325,131 @@ export default function CandidateDashboard() {
     }
   };
 
+  const handleModelSwap = async (modelName: string, inferenceMode: string) => {
+    setIsSwappingModel(true);
+    
+    // Store previous model for fallback
+    const previousModel = currentModel;
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/models/swap`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model_name: modelName,
+          inference_mode: inferenceMode,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log("Model swap initiated:", result);
+      
+      // Update current model to show switching status
+      setCurrentModel({
+        current_model: modelName,
+        inference_mode: inferenceMode,
+        status: "swapping"
+      });
+      setModelStatus("swapping");
+      
+      // Poll for completion with improved logic
+      let pollAttempts = 0;
+      const maxPollAttempts = 20; // 20 attempts * 3 seconds = 60 seconds max
+      
+      const pollStatus = async () => {
+        try {
+          const statusResponse = await fetch(`${API_BASE_URL}/api/models/status`);
+          const statusData = await statusResponse.json();
+          
+          if (statusData.status === "idle" && statusData.current_model === modelName) {
+            // Success - model loaded
+            setCurrentModel(statusData);
+            setModelStatus("online");
+            setIsSwappingModel(false);
+            console.log("Model swap completed successfully");
+          } else if (statusData.status === "error" || pollAttempts >= maxPollAttempts) {
+            // Failed or timeout - fallback to default model
+            console.error("Model swap failed, falling back to default model");
+            await fallbackToDefaultModel(previousModel);
+          } else {
+            // Still swapping, continue polling
+            pollAttempts++;
+            setTimeout(pollStatus, 3000);
+          }
+        } catch (error) {
+          console.error("Failed to poll model status:", error);
+          if (pollAttempts >= maxPollAttempts) {
+            await fallbackToDefaultModel(previousModel);
+          } else {
+            pollAttempts++;
+            setTimeout(pollStatus, 3000);
+          }
+        }
+      };
+      
+      // Start polling after initial delay
+      setTimeout(pollStatus, 3000);
+      
+    } catch (error) {
+      console.error("Failed to initiate model swap:", error);
+      alert("Failed to switch model. Please try again.");
+      await fallbackToDefaultModel(previousModel);
+    }
+  };
+
+  const fallbackToDefaultModel = async (previousModel: any) => {
+    try {
+      // Try to swap back to default model
+      const defaultModel = "Qwen/Qwen2.5-Omni-7B"; // Default from config
+      const response = await fetch(`${API_BASE_URL}/api/models/swap`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model_name: defaultModel,
+          inference_mode: "one_shot",
+        }),
+      });
+
+      if (response.ok) {
+        console.log("Fallback to default model initiated");
+        setCurrentModel({
+          current_model: defaultModel,
+          inference_mode: "one_shot",
+          status: "swapping"
+        });
+        
+        // Poll for default model completion
+        setTimeout(async () => {
+          try {
+            const statusResponse = await fetch(`${API_BASE_URL}/api/models/status`);
+            const statusData = await statusResponse.json();
+            setCurrentModel(statusData);
+          } catch (error) {
+            console.error("Failed to get status after fallback:", error);
+            // Restore previous model as last resort
+            setCurrentModel(previousModel);
+          }
+          setIsSwappingModel(false);
+        }, 10000);
+      } else {
+        throw new Error("Fallback failed");
+      }
+    } catch (error) {
+      console.error("Fallback to default model failed:", error);
+      setCurrentModel(previousModel || { current_model: null, status: "error" });
+      setIsSwappingModel(false);
+      alert("Model switch failed. Please check the model service.");
+    }
+  };
+
   const handleSort = (column: string) => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc")
@@ -392,29 +563,35 @@ export default function CandidateDashboard() {
 
   // System status helper functions
   const getSystemStatusColor = () => {
-    if (backendStatus === "online" && modelStatus === "online") {
+    if (modelStatus === "swapping") {
+      return "bg-orange-500"; // Model swapping - orange
+    } else if (backendStatus === "online" && modelStatus === "online") {
       return "bg-green-500"; // Both online - green
-    } else if (backendStatus === "online" || modelStatus === "online") {
-      return "bg-yellow-500";
+    } else if (backendStatus === "online" && modelStatus === "offline") {
+      return "bg-orange-500"; // Model offline - orange
+    } else if (backendStatus === "offline") {
+      return "bg-red-500"; // Backend offline - red
     } else {
-      return "bg-red-500";
+      return "bg-yellow-500"; // Mixed state - yellow
     }
   };
 
   const getSystemStatusText = () => {
-    if (backendStatus === "online" && modelStatus === "online") {
+    if (modelStatus === "swapping") {
+      return "Switching Model...";
+    } else if (backendStatus === "online" && modelStatus === "online") {
       return "System Online";
     } else if (backendStatus === "online" && modelStatus === "offline") {
       return "AI Model Offline";
     } else if (backendStatus === "offline" && modelStatus === "online") {
       return "Backend Offline";
     } else {
-      return "Offline";
+      return "System Offline";
     }
   };
 
   const getSystemStatusAnimation = () => {
-    if (backendStatus === "online" && modelStatus === "online") {
+    if (modelStatus === "swapping" || isUploading || isRefreshing) {
       return "animate-pulse";
     } else {
       return "";
@@ -550,49 +727,74 @@ export default function CandidateDashboard() {
               </DialogContent>
             </Dialog>
             
-            {/* Job Description Modal */}
-            <Dialog open={showJobDescriptionModal} onOpenChange={setShowJobDescriptionModal}>
-              <DialogContent className="sm:max-w-[600px]">
-                <DialogHeader>
-                  <DialogTitle>Job Description - {selectedJob?.title}</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4 pt-4">
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">Job Description</label>
-                    <textarea
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical"
-                      placeholder="Enter the job description, requirements, and qualifications..."
-                      value={editingJobDescription}
-                      onChange={(e) => setEditingJobDescription(e.target.value)}
-                      rows={12}
-                    />
+            {/* Model Selector Button */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex items-center space-x-2 bg-transparent"
+                  disabled={isSwappingModel}
+                >
+                  <Cpu className="h-4 w-4" />
+                  <span>{currentModel?.status === "swapping" ? "Switching Model..." : 
+                        availableModels?.inference_modes?.[currentModel?.inference_mode]?.display_name || "Model"}</span>
+                  <ChevronDown className="h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                {availableModels?.inference_modes && Object.entries(availableModels.inference_modes).map(([modeKey, mode]: [string, any]) => (
+                  <div key={modeKey}>
+                    <div className="px-2 py-1.5 text-sm font-semibold text-gray-700 flex items-center">
+                      {modeKey === "one_shot" ? <FileText className="h-4 w-4 mr-2" /> : <Layers className="h-4 w-4 mr-2" />}
+                      {mode.display_name}
+                      {mode.hover_text && (
+                        <div className="ml-1" title={mode.hover_text}>
+                          <Info className="h-3 w-3 text-gray-400 hover:text-gray-600 cursor-help" />
+                        </div>
+                      )}
+                    </div>
+                    {Object.entries(mode.models || {}).map(([modelName, modelInfo]: [string, any]) => (
+                      <DropdownMenuItem
+                        key={modelName}
+                        onClick={() => handleModelSwap(modelName, modeKey)}
+                        className="flex items-center justify-between pl-6"
+                        disabled={isSwappingModel}
+                        title={modelInfo.description || modelInfo.display_name}
+                      >
+                        <div className="flex items-center">
+                          <span className="text-sm">{modelInfo.display_name}</span>
+                          {modelInfo.description && modelInfo.type === "hybrid_combination" && (
+                            <div className="ml-1" title={modelInfo.description}>
+                              <Info className="h-3 w-3 text-gray-400 hover:text-gray-600 cursor-help" />
+                            </div>
+                          )}
+                        </div>
+                        {currentModel?.current_model === modelName && currentModel?.inference_mode === modeKey && (
+                          <Check className="h-4 w-4 text-green-600" />
+                        )}
+                      </DropdownMenuItem>
+                    ))}
+                    {Object.keys(mode.models || {}).length === 0 && (
+                      <div className="px-6 py-2 text-xs text-gray-500">Coming Soon</div>
+                    )}
                   </div>
-                  <div className="flex justify-end space-x-3 pt-4">
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setShowJobDescriptionModal(false);
-                        setEditingJobDescription("");
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      onClick={handleUpdateJobDescription}
-                      disabled={isUpdatingJob || !editingJobDescription.trim()}
-                    >
-                      {isUpdatingJob ? "Saving..." : "Save"}
-                    </Button>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
+                ))}
+                {!availableModels?.inference_modes && (
+                  <div className="px-2 py-2 text-sm text-gray-500">Loading models...</div>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Right Controls */}
           <div className="flex flex-col items-end space-y-3">
             <div className="flex items-center space-x-4">
-              <Button onClick={handleFileUpload} disabled={isUploading} className="flex items-center space-x-2">
+              <Button 
+                onClick={handleFileUpload} 
+                disabled={isUploading || modelStatus === "offline" || currentModel?.status === "swapping"} 
+                className="flex items-center space-x-2"
+              >
                 <Upload className={cn("h-4 w-4", isUploading && "animate-pulse")} />
                 <span>{isUploading ? "Uploading..." : "Upload Resumes"}</span>
               </Button>
@@ -616,6 +818,44 @@ export default function CandidateDashboard() {
             {isClient && <div className="text-sm text-gray-500">Last Updated: {lastUpdated}</div>}
           </div>
         </div>
+
+        {/* Job Description Modal */}
+        <Dialog open={showJobDescriptionModal} onOpenChange={setShowJobDescriptionModal}>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle>{selectedJob?.title}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 pt-4">
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Job Description</label>
+                <textarea
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical"
+                  placeholder="Enter the job description, requirements, and qualifications..."
+                  value={editingJobDescription}
+                  onChange={(e) => setEditingJobDescription(e.target.value)}
+                  rows={12}
+                />
+              </div>
+              <div className="flex justify-end space-x-3 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowJobDescriptionModal(false);
+                    setEditingJobDescription("");
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleUpdateJobDescription}
+                  disabled={isUpdatingJob || !editingJobDescription.trim()}
+                >
+                  {isUpdatingJob ? "Saving..." : "Save"}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Table */}
         {selectedJob ? (

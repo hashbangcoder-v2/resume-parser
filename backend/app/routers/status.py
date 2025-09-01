@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from omegaconf import DictConfig
 from app.config import get_config
+from app.llm_client import check_model_service_health
 import logging
 import httpx
 
@@ -38,8 +39,9 @@ async def health_check(cfg: DictConfig = Depends(get_config)):
     else:
         # Development: Check local vLLM model availability
         try:
-            from app.llm_client import vllm_model
-            model_status = "ok" if vllm_model is not None else "error"
+            
+            model_healthy = await check_model_service_health()
+            model_status = "ok" if model_healthy else "error"
         except Exception:
             model_status = "error"
 

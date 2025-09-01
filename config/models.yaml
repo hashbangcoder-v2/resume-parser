@@ -4,26 +4,86 @@ default_model: "Qwen/Qwen2.5-Omni-7B"
 prompt_path: "${oc.env:PROJECT_ROOT}/backend/app/prompts/system_prompt.txt"
 job_desc_path: "${oc.env:PROJECT_ROOT}/backend/app/job_desc"
 
+# Inference mode configuration
+inference_modes:
+  one_shot:
+    display_name: "One-Shot"
+    description: "Single stage: One VLM model processes images directly"
+    hover_text: "Single multimodal model that directly processes PDF images and outputs structured candidate assessment"
+  hybrid:
+    display_name: "Hybrid"
+    description: "Two-stage: Vision extraction + Text reasoning"
+    hover_text: "Two-stage pipeline: Vision model extracts text from PDFs, then reasoning model analyzes the content"
+
+# Available models
 models:
-  "Qwen/Qwen2.5-Omni-7B":
+  one_shot:  # One-shot multimodal models
+    "Qwen/Qwen2.5-Omni-7B":
+      enabled: true
+      display_name: "Qwen 2.5 Omni 7B"
+      type: "multimodal"
+      inference_modes: ["one_shot"]
+      gpu_memory_utilization: 0.85
+      max_model_len: 32768
+      temperature: 0.9
+      repetition_penalty: 1.1
+      max_tokens: 32768
+      max_num_seqs: 4
+
+    "zai-org/GLM-4.1V-9B-Thinking":
+      enabled: true
+      display_name: "GLM-4.1V 9B Thinking"
+      type: "multimodal"
+      inference_modes: ["one_shot"]
+      gpu_memory_utilization: 0.80
+      max_model_len: 16384
+      temperature: 0.3  
+      repetition_penalty: 1.05
+      max_tokens: 2048  
+      max_num_seqs: 2
+
+  hybrid:    
+    "Qwen/Qwen3-30B-A3B-Thinking-2507":
+      enabled: true
+      display_name: "Qwen3 30B A3B Thinking"
+      type: "text_reasoning"
+      inference_modes: ["hybrid"]
+      gpu_memory_utilization: 0.8
+      max_model_len: 32768
+      temperature: 0.7
+      repetition_penalty: 1.1
     
-    display_name: "Qwen 2.5 Omni 7B"
-    gpu_memory_utilization: 0.85
-    max_model_len: 32768
-    temperature: 0.9
-    repetition_penalty: 1.1
-    max_tokens: 32768
-    max_num_seqs: 4
+    "nvidia/NVIDIA-Nemotron-Nano-9B-v2":
+      enabled: true
+      display_name: "NVIDIA-Nemotron-Nano-9B-v2"
+      type: "text_reasoning"
+      inference_modes: ["hybrid"]
+      gpu_memory_utilization: 0.7
+      max_model_len: 16384
+      temperature: 0.6
+      repetition_penalty: 1.1
+    
+    "openai/gpt-oss-20b":
+      enabled: false
+      display_name: "gpt-oss-20B"
+      type: "text_reasoning"
+      inference_modes: ["hybrid"]
+      gpu_memory_utilization: 0.75
+      max_model_len: 24576
+      temperature: 0.7
+      repetition_penalty: 1.0   
 
-  "zai-org/GLM-4.1V-9B-Thinking":
-    display_name: "GLM-4.1V 9B Thinking"
-    gpu_memory_utilization: 0.80  # Slightly less for larger model
-    max_model_len: 16384
-    temperature: 0.3  
-    repetition_penalty: 1.05
-    max_tokens: 2048  
-    max_num_seqs: 2   
-
+  hybrid_parser:
+    "microsoft/SmolDocling":
+      enabled: true
+      display_name: "SmolDocling-256M"
+      type: "vision_ocr"
+      inference_modes: ["hybrid"]
+      gpu_memory_utilization: 0.6
+      max_model_len: 8192
+      temperature: 0.1
+      repetition_penalty: 1.0
+  
 # Common vLLM settings for all models
 vllm_common_inference_args:
   enforce_eager: true

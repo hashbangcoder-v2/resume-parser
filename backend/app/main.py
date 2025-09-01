@@ -1,31 +1,25 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from app.routers import jobs, applications, status, user, upload
+from app.routers import jobs, applications, status, user, upload, models
 from app.db import engine, Base
 import logging
 import uvicorn
 
-from app import models
+from app import models as db_models
 from app.config import get_config
 from app.logger import setup_logging
-from app.llm_client import initialize_vllm
 
 cfg = get_config()
 setup_logging(cfg)
 
-models.Base.metadata.create_all(bind=engine)
+db_models.Base.metadata.create_all(bind=engine)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifespan context manager for FastAPI startup and shutdown events"""
-    # Startup
-    if cfg.app.env != "prod":
-        try:
-            initialize_vllm(cfg)
-        except Exception as e:
-            logging.error(f"Failed to initialize vLLM: {e}")
-            pass
+    # Startup - Model service handles VLLM initialization 
+    logging.info("FastAPI server starting - Model service handles VLLM")
     
     yield
     
@@ -46,6 +40,7 @@ app.include_router(applications.router)
 app.include_router(status.router)
 app.include_router(user.router)
 app.include_router(upload.router)
+app.include_router(models.router)
 
 
 @app.get("/")
