@@ -104,7 +104,7 @@ models:
 
 ### **Main Backend Changes**
 - New router: `backend/app/routers/models.py`
-- Updated: `backend/app/llm_client.py` (now calls model service)
+- Updated: `backend/app/process.py` (now calls model service)
 - Updated: `backend/app/main.py` (removed VLLM initialization)
 
 ## 🔍 **Troubleshooting**

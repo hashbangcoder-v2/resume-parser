@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from omegaconf import DictConfig
 from app.config import get_config
-from app.llm_client import check_model_service_health
+from app.process import check_model_service_health
 import logging
 import httpx
 

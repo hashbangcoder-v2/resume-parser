@@ -467,7 +467,7 @@ class TestStatusRoutes(TestRoutes):
         self.assertIn("model_endpoint", data)
         self.assertEqual(data["model_endpoint"], "local_vllm")  # In test/dev mode
     
-    @patch('app.llm_client.vllm_model', new=MagicMock())
+    @patch('app.process.vllm_model', new=MagicMock())
     def test_health_check_success(self):
         """Test successful health check in dev mode."""
         response = self.client.get("/api/health")
@@ -477,7 +477,7 @@ class TestStatusRoutes(TestRoutes):
         self.assertEqual(data["status"], "ok")
         self.assertEqual(data["dependencies"]["ai_model"], "ok")
     
-    @patch('app.llm_client.vllm_model', new=None)
+    @patch('app.process.vllm_model', new=None)
     def test_health_check_ai_model_error(self):
         """Test health check with AI model error in dev mode."""
         response = self.client.get("/api/health")

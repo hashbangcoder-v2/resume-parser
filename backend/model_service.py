@@ -20,7 +20,7 @@ from pathlib import Path
 import sys
 
 # Add backend to path to import modules
-sys.path.append(str(Path(__file__).parent))
+# sys.path.append(str(Path(__file__).parent))
 from app.config import get_config
 from app.logger import setup_logging, logger
 from app.schemas import LLMResponse
@@ -94,10 +94,14 @@ class ModelManager:
             if model_config is None:
                 raise ValueError(f"Model '{model_name}' not found in configuration")
             
-            # Cleanup old model
-            if self.vllm_model:
+            if hasattr(self, 'vllm_model') and self.vllm_model is not None:
                 logger.info("Cleaning up previous model...")
-                del self.vllm_model                
+                try:
+                    del self.vllm_model
+                except Exception as cleanup_error:
+                    logger.warning(f"Error during model cleanup: {cleanup_error}")
+                finally:
+                    self.vllm_model = None                
             
             # Prepare model config
             model_config = OmegaConf.merge(self.cfg.vllm_common_inference_args, model_config)
@@ -124,9 +128,37 @@ class ModelManager:
         except Exception as e:
             logger.error(f"Failed to load model {model_name}: {e}")
             self.status = "error"
+            
+            # Ensure vllm_model attribute exists even on error
+            if not hasattr(self, 'vllm_model'):
+                self.vllm_model = None
+                
+            # Try to reset to a known state
+            self.current_model_name = None
             raise e
         finally:
             self.is_swapping = False
+    
+    async def recover_model(self):
+        """Attempt to recover by loading the default model"""
+        try:
+            logger.info("Attempting model recovery...")
+            
+            # Always fall back to default model
+            default_model = self.cfg.default_model
+            if default_model != self.current_model_name:
+                logger.info(f"Attempting to reload default model: {default_model}")
+                await self.load_model(default_model)
+                return
+            else:
+                logger.warning(f"Current model is already the default model: {default_model}")
+                # Try to restart the default model anyway
+                logger.info("Restarting default model...")
+                await self.load_model(default_model)
+                
+        except Exception as e:
+            logger.error(f"Model recovery failed: {e}")
+            self.status = "error"
     
     async def inference(self, images: List[Image.Image], job_description: str) -> LLMResponse:
         """Perform inference using the loaded model"""
@@ -249,8 +281,17 @@ async def swap_model(request: ModelSwapRequest):
         raise HTTPException(status_code=503, detail="Model manager not initialized")
     
     try:
-        # Start swapping in background
-        asyncio.create_task(model_manager.load_model(request.model_name))
+        # Start swapping in background with error handling
+        async def swap_with_recovery():
+            try:
+                await model_manager.load_model(request.model_name)
+                logger.info(f"Model swap to {request.model_name} completed successfully")
+            except Exception as swap_error:
+                logger.error(f"Model swap to {request.model_name} failed: {swap_error}")
+                # Attempt recovery
+                await model_manager.recover_model()
+        
+        asyncio.create_task(swap_with_recovery())
         
         return {
             "status": "swapping",
@@ -301,10 +342,10 @@ async def get_available_models():
                 "name": model_name,
                 "display_name": model_config.get("display_name", model_name),
                 "type": model_config.get("type", "multimodal"),
-                "max_model_len": model_config.get("max_model_len", 32768)
+                "max_model_len": model_config.get("max_model_len")
             }
 
-    # Get hybrid parser (vision model)
+    # Get oCr parser (vision model)
     hybrid_parser_models = {}
     for model_name, model_config in cfg.models.hybrid_parser.items():
         if model_config.get("enabled", False):
@@ -312,7 +353,7 @@ async def get_available_models():
                 "name": model_name,
                 "display_name": model_config.get("display_name", model_name),
                 "type": model_config.get("type", "vision_ocr"),
-                "max_model_len": model_config.get("max_model_len", 8192)
+                "max_model_len": model_config.get("max_model_len")
             }
 
     # Get hybrid reasoning models
@@ -323,7 +364,7 @@ async def get_available_models():
                 "name": model_name,
                 "display_name": model_config.get("display_name", model_name),
                 "type": model_config.get("type", "text_reasoning"),
-                "max_model_len": model_config.get("max_model_len", 32768)
+                "max_model_len": model_config.get("max_model_len")
             }
 
     # Create hybrid combinations by pairing each parser with each reasoning model
@@ -365,16 +406,16 @@ async def get_available_models():
 def main():
     """Main entry point for wfc-model-serve command"""
     import uvicorn
-    print("🚀 Starting Model Service on port 8001...")
-    print("📍 This service handles VLLM model loading and inference")
-    print("🔄 Hot-swapping capabilities enabled")
+    print("Starting Model Service on port 8001...")
+    print("This service handles VLLM model loading and inference")
+    print("Hot-swapping capabilities enabled")
     print("=" * 50)
     
     uvicorn.run(
         "model_service:app",
         host="0.0.0.0",
         port=8001,
-        reload=False,  # Disable reload for model service to avoid reloading large models
+        reload=False, 
         log_level="info"
     )
 
