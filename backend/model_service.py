@@ -1,36 +1,24 @@
-"""
-Model Service - Separate FastAPI service for VLLM model management
-Runs on port 8001, handles model loading/swapping and inference
-"""
-import json
-import os
+
+# Model Service - FastAPI service for VLLM model management handles model loading/swapping and inference
+
 import asyncio
 from contextlib import asynccontextmanager
-from typing import List, Dict, Any, Optional
+from typing import List, Optional
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from PIL import Image
 import base64
 from io import BytesIO
 
-from vllm import LLM, SamplingParams
-from vllm.sampling_params import GuidedDecodingParams
-from omegaconf import DictConfig, OmegaConf
-from pathlib import Path
-import sys
-
-# Add backend to path to import modules
-# sys.path.append(str(Path(__file__).parent))
 from app.config import get_config
 from app.logger import setup_logging, logger
-from app.schemas import LLMResponse
-from app.model_utils import generate_llm_prompt
+from app.model_manager import ModelManager
 
 
 class InferenceRequest(BaseModel):
     images_b64: List[str]  
     job_description: str
-    model_config_override: Optional[Dict[str, Any]] = None  
+    model_config_override: Optional[dict] = None  
 
 
 class ModelSwapRequest(BaseModel):
@@ -38,191 +26,8 @@ class ModelSwapRequest(BaseModel):
     inference_mode: str = "one_shot"  # "one_shot" or "hybrid"
 
 
-class ModelStatus(BaseModel):
-    current_model: Optional[str] = None
-    inference_mode: str = "one_shot"
-    status: str = "idle"  # "idle", "loading", "swapping", "error"
-    gpu_memory_used: Optional[float] = None
-
 # Global model manager
 model_manager = None
-
-
-class ModelManager:
-    def __init__(self, cfg: DictConfig):
-        self.cfg = cfg
-        self.vllm_model = None
-        self.current_model_name = None
-        self.inference_mode = "one_shot"
-        self.status = "idle"
-        self.is_swapping = False
-    
-    async def initialize_default_model(self):
-        """Initialize the default model from config"""
-        try:
-            default_model = self.cfg.default_model
-            await self.load_model(default_model)
-            logger.info(f"Default model {default_model} loaded successfully")
-        except Exception as e:
-            logger.error(f"Failed to initialize default model: {e}")
-            self.status = "error"
-    
-    async def load_model(self, model_name: str):
-        """Load a specific model"""
-        self.status = "loading"
-        self.is_swapping = True
-        
-        try:
-            # Set environment variables
-            if hasattr(self.cfg, 'env_vars'):
-                for key, value in self.cfg.env_vars.items():
-                    os.environ[str(key)] = str(value)
-            
-            # Find model in the new config structure
-            model_config = None
-            
-            # Check one_shot models
-            if model_name in self.cfg.models.one_shot:
-                model_config = self.cfg.models.one_shot[model_name]
-            # Check hybrid parser models
-            elif model_name in self.cfg.models.hybrid_parser:
-                model_config = self.cfg.models.hybrid_parser[model_name]
-            # Check hybrid reasoning models
-            elif model_name in self.cfg.models.hybrid:
-                model_config = self.cfg.models.hybrid[model_name]
-            
-            if model_config is None:
-                raise ValueError(f"Model '{model_name}' not found in configuration")
-            
-            if hasattr(self, 'vllm_model') and self.vllm_model is not None:
-                logger.info("Cleaning up previous model...")
-                try:
-                    del self.vllm_model
-                except Exception as cleanup_error:
-                    logger.warning(f"Error during model cleanup: {cleanup_error}")
-                finally:
-                    self.vllm_model = None                
-            
-            # Prepare model config
-            model_config = OmegaConf.merge(self.cfg.vllm_common_inference_args, model_config)
-            
-            vllm_config = {
-                "model": model_name,
-                "gpu_memory_utilization": model_config.gpu_memory_utilization,
-                "max_model_len": model_config.max_model_len,
-                "enforce_eager": model_config.enforce_eager,
-                "tensor_parallel_size": model_config.tensor_parallel_size,
-                "trust_remote_code": model_config.trust_remote_code,
-                "disable_custom_all_reduce": True,
-                "max_num_seqs": model_config.get("max_num_seqs", 4),
-                "limit_mm_per_prompt": {"image": self.cfg.app.max_page_size},
-            }
-            
-            logger.info(f"Loading model {model_name} with config: {vllm_config}")
-            self.vllm_model = LLM(**vllm_config)
-            self.current_model_name = model_name
-            self.status = "idle"
-            
-            logger.info(f"Model {model_name} loaded successfully!")
-            
-        except Exception as e:
-            logger.error(f"Failed to load model {model_name}: {e}")
-            self.status = "error"
-            
-            # Ensure vllm_model attribute exists even on error
-            if not hasattr(self, 'vllm_model'):
-                self.vllm_model = None
-                
-            # Try to reset to a known state
-            self.current_model_name = None
-            raise e
-        finally:
-            self.is_swapping = False
-    
-    async def recover_model(self):
-        """Attempt to recover by loading the default model"""
-        try:
-            logger.info("Attempting model recovery...")
-            
-            # Always fall back to default model
-            default_model = self.cfg.default_model
-            if default_model != self.current_model_name:
-                logger.info(f"Attempting to reload default model: {default_model}")
-                await self.load_model(default_model)
-                return
-            else:
-                logger.warning(f"Current model is already the default model: {default_model}")
-                # Try to restart the default model anyway
-                logger.info("Restarting default model...")
-                await self.load_model(default_model)
-                
-        except Exception as e:
-            logger.error(f"Model recovery failed: {e}")
-            self.status = "error"
-    
-    async def inference(self, images: List[Image.Image], job_description: str) -> LLMResponse:
-        """Perform inference using the loaded model"""
-        if not self.vllm_model:
-            raise HTTPException(status_code=503, detail="No model loaded")
-        
-        if self.is_swapping:
-            raise HTTPException(status_code=503, detail="Model is swapping, please try again later")
-        
-        try:
-            # Get model config for sampling params
-            current_model_config = None
-            
-            # Find current model in the new config structure
-            if self.current_model_name in self.cfg.models.one_shot:
-                current_model_config = self.cfg.models.one_shot[self.current_model_name]
-            elif self.current_model_name in self.cfg.models.hybrid_parser:
-                current_model_config = self.cfg.models.hybrid_parser[self.current_model_name]
-            elif self.current_model_name in self.cfg.models.hybrid:
-                current_model_config = self.cfg.models.hybrid[self.current_model_name]
-            
-            if current_model_config is None:
-                raise ValueError(f"Current model '{self.current_model_name}' not found in configuration")
-            
-            model_config = OmegaConf.merge(self.cfg.vllm_common_inference_args, current_model_config)
-            
-            model_max_len = self.vllm_model.llm_engine.model_config.max_model_len
-            max_response_tokens = min(1500, max(512, model_max_len - 500))
-            
-            # Enforce structured outputs
-            guided_decoding_params = GuidedDecodingParams(json=LLMResponse.model_json_schema())
-            sampling_params = SamplingParams(
-                temperature=model_config.temperature,
-                max_tokens=max_response_tokens,
-                repetition_penalty=model_config.repetition_penalty,
-                guided_decoding=guided_decoding_params,
-            )
-            
-            logger.info(f"Generating response with {len(images)} images and max_tokens={max_response_tokens}")
-            multimodal_input = generate_llm_prompt(images, job_description)
-            
-            outputs = self.vllm_model.generate([multimodal_input], sampling_params)
-            llm_content = outputs[0].outputs[0].text.strip()
-            parsed_content = json.loads(llm_content)
-            validated_response = LLMResponse.model_validate(parsed_content)
-            return validated_response
-            
-        except json.JSONDecodeError as e:
-            logger.error(f"Error parsing JSON from vLLM response: {e}")
-            if 'llm_content' in locals():
-                logger.error(f"Raw response: {llm_content[:500]}...")
-            return LLMResponse(outcome="Failed", reason="Error parsing AI response.")
-        except Exception as e:
-            logger.error(f"An unexpected error occurred during vLLM inference: {e}", exc_info=True)
-            return LLMResponse(outcome="Failed", reason="An unexpected error occurred during analysis.")
-    
-    def get_status(self) -> ModelStatus:
-        """Get current model status"""
-        return ModelStatus(
-            current_model=self.current_model_name,
-            inference_mode=self.inference_mode,
-            status=self.status
-        )
-
 
 
 @asynccontextmanager
@@ -288,7 +93,7 @@ async def swap_model(request: ModelSwapRequest):
                 logger.info(f"Model swap to {request.model_name} completed successfully")
             except Exception as swap_error:
                 logger.error(f"Model swap to {request.model_name} failed: {swap_error}")
-                # Attempt recovery
+                # Attempt recovery with default
                 await model_manager.recover_model()
         
         asyncio.create_task(swap_with_recovery())
@@ -337,7 +142,7 @@ async def get_available_models():
     # Get one-shot models directly from config
     one_shot_models = {}
     for model_name, model_config in cfg.models.one_shot.items():
-        if  model_config.get("enabled", False):
+        if model_config.get("enabled", False):
             one_shot_models[model_name] = {
                 "name": model_name,
                 "display_name": model_config.get("display_name", model_name),

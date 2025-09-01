@@ -35,12 +35,13 @@ models:
       display_name: "GLM-4.1V 9B Thinking"
       type: "multimodal"
       inference_modes: ["one_shot"]
-      gpu_memory_utilization: 0.80
-      max_model_len: 16384
+      gpu_memory_utilization: 0.60
+      max_model_len: 4096
       temperature: 0.3  
       repetition_penalty: 1.05
-      max_tokens: 2048  
-      max_num_seqs: 2
+      max_tokens: 1024  
+      max_num_seqs: 1
+      served_model_name: "glm-4.1v"
 
   hybrid:    
     "Qwen/Qwen3-30B-A3B-Thinking-2507":

@@ -38,8 +38,7 @@ export function useModels() {
           setModelStatus("offline");
         }
       } catch (error) {
-        console.error("Failed to fetch models:", error);
-        // Set empty state to prevent undefined errors
+        console.error("Failed to fetch models:", error);        
         setAvailableModels({ inference_modes: {} });
       }
     };
