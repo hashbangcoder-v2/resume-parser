@@ -94,8 +94,7 @@ class ModelManager:
             # Cleanup old model
             if self.vllm_model:
                 logger.info("Cleaning up previous model...")
-                del self.vllm_model
-                # Note: torch.cuda.empty_cache() would go here if we import torch
+                del self.vllm_model                
             
             # Prepare model config
             model_config = OmegaConf.merge(self.cfg.vllm_common_inference_args, model_config)
