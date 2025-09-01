@@ -12,7 +12,7 @@ models:
     max_model_len: 32768
     temperature: 0.9
     repetition_penalty: 1.1
-    max_tokens: 1024
+    max_tokens: 32768
     max_num_seqs: 4
 
   "zai-org/GLM-4.1V-9B-Thinking":

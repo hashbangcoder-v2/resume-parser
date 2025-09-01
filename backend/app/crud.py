@@ -17,12 +17,32 @@ def get_jobs(db: Session, job_id: int = None, title: str = None, skip: int = 0, 
     else:
         return query.offset(skip).limit(limit).all()
 
-def create_job(db: Session, job: schemas.JobBase):
+def get_job(db: Session, job_id: int):
+    """
+    Get a single job by ID.
+    """
+    return db.query(models.Job).filter(models.Job.id == job_id).first()
+
+def create_or_update_job(db: Session, job: schemas.JobBase, job_id: int = None):
+    """
+    Create a new job or update an existing one.
+    - If job_id is None, creates a new job
+    - If job_id is provided, updates the existing job
+    """
+    if job_id is None:
+        # Create new job
+        db_job = models.Job(title=job.title, description=job.description, created_at=datetime.now())
+        db.add(db_job)
+    else:
+        # Update existing job
+        db_job = db.query(models.Job).filter(models.Job.id == job_id).first()
+        if db_job:
+            db_job.title = job.title
+            db_job.description = job.description
     
-    db_job = models.Job(title=job.title, description=job.description, created_at=datetime.now())
-    db.add(db_job)
-    db.commit()
-    db.refresh(db_job)
+    if db_job:
+        db.commit()
+        db.refresh(db_job)
     return db_job
 
 

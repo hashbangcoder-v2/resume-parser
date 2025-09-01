@@ -21,6 +21,7 @@ import {
   ExternalLink,
   User,
   Plus,
+  FileText,
 } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
@@ -71,6 +72,9 @@ export default function CandidateDashboard() {
   const [newJobTitle, setNewJobTitle] = useState("")
   const [newJobDescription, setNewJobDescription] = useState("")
   const [isCreatingJob, setIsCreatingJob] = useState(false)
+  const [showJobDescriptionModal, setShowJobDescriptionModal] = useState(false)
+  const [editingJobDescription, setEditingJobDescription] = useState("")
+  const [isUpdatingJob, setIsUpdatingJob] = useState(false)
 
   useEffect(() => {
     setIsClient(true)
@@ -224,6 +228,54 @@ export default function CandidateDashboard() {
       alert("Failed to create job. Please try again.");
     } finally {
       setIsCreatingJob(false);
+    }
+  };
+
+  const handleJobDescriptionClick = () => {
+    if (selectedJob) {
+      setEditingJobDescription(selectedJob.description || "");
+      setShowJobDescriptionModal(true);
+    }
+  };
+
+  const handleUpdateJobDescription = async () => {
+    if (!selectedJob || !editingJobDescription.trim()) {
+      alert("Please enter a job description");
+      return;
+    }
+
+    setIsUpdatingJob(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/jobs/${selectedJob.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: selectedJob.title,
+          description: editingJobDescription.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const updatedJob = await response.json();
+      console.log("Job updated:", updatedJob);
+      
+      // Update selected job and jobs list
+      setSelectedJob(updatedJob);
+      setJobs(jobs.map(job => job.id === updatedJob.id ? updatedJob : job));
+      
+      // Close modal
+      setShowJobDescriptionModal(false);
+      
+    } catch (error) {
+      console.error("Failed to update job:", error);
+      alert("Failed to update job description. Please try again.");
+    } finally {
+      setIsUpdatingJob(false);
     }
   };
 
@@ -430,6 +482,19 @@ export default function CandidateDashboard() {
               </PopoverContent>
             </Popover>
             
+            {/* Job Description Button */}
+            {selectedJob && (
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleJobDescriptionClick}
+                className="bg-transparent"
+                title="View/Edit Job Description"
+              >
+                <FileText className="h-4 w-4" />
+              </Button>
+            )}
+            
             {/* Create Job Button */}
             <Dialog open={showCreateJobModal} onOpenChange={setShowCreateJobModal}>
               <DialogTrigger asChild>
@@ -479,6 +544,44 @@ export default function CandidateDashboard() {
                       disabled={isCreatingJob || !newJobTitle.trim() || !newJobDescription.trim()}
                     >
                       {isCreatingJob ? "Creating..." : "Create Job"}
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+            
+            {/* Job Description Modal */}
+            <Dialog open={showJobDescriptionModal} onOpenChange={setShowJobDescriptionModal}>
+              <DialogContent className="sm:max-w-[600px]">
+                <DialogHeader>
+                  <DialogTitle>Job Description - {selectedJob?.title}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 pt-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">Job Description</label>
+                    <textarea
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical"
+                      placeholder="Enter the job description, requirements, and qualifications..."
+                      value={editingJobDescription}
+                      onChange={(e) => setEditingJobDescription(e.target.value)}
+                      rows={12}
+                    />
+                  </div>
+                  <div className="flex justify-end space-x-3 pt-4">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setShowJobDescriptionModal(false);
+                        setEditingJobDescription("");
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleUpdateJobDescription}
+                      disabled={isUpdatingJob || !editingJobDescription.trim()}
+                    >
+                      {isUpdatingJob ? "Saving..." : "Save"}
                     </Button>
                   </div>
                 </div>
