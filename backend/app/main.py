@@ -2,11 +2,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from app.routers import jobs, applications, status, user, upload, models
-from app.db import engine, Base
+from app.db import engine
 import logging
 import uvicorn
 
-from app import models as db_models
+from app import db_models
 from app.config import get_config
 from app.logger import setup_logging
 

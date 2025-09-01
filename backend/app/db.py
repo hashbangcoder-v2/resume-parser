@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from pathlib import Path
 from app.config import get_config
-from .models import Base
+from app import db_models
 from app.logger import logger
 
 
@@ -20,7 +20,7 @@ if not DATABASE_FILE.exists() and get_config().database.create_if_not_exists:
     logger.info(f"Database file created: {DATABASE_FILE}")
 
 engine = create_engine(str(DATABASE_URL), connect_args={"check_same_thread": False})
-Base.metadata.create_all(bind=engine)
+db_models.Base.metadata.create_all(bind=engine)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 

@@ -1,4 +1,3 @@
-import json
 import base64
 from io import BytesIO
 from typing import List
@@ -7,8 +6,10 @@ import httpx
 from omegaconf import DictConfig
 from app.logger import logger
 from app.schemas import LLMResponse
+from app.config import get_config
 
-MODEL_SERVICE_URL = "http://localhost:8001"
+cfg = get_config()
+MODEL_SERVICE_URL = cfg.model_service.url
 
 
 def _encode_images_to_base64(images: List[Image.Image]) -> List[str]:

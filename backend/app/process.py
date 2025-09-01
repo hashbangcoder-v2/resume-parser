@@ -6,11 +6,10 @@ from app.logger import logger
 from app import llm_client, crud, schemas
 from app.schemas import FinalStatus
 from sqlalchemy.orm import Session
-from app.models import Job, Candidate
+from app import db_models
 
 
-async def evaluate_candidate_and_create(cfg: DictConfig, images: List[Image.Image], job: Job, db_session: Session, resume_hash: str, candidate: Candidate = None):    
-    # Use the model service for inference (no need to worry about config structure)
+async def evaluate_candidate_and_create(cfg: DictConfig, images: List[Image.Image], job: db_models.Job, db_session: Session, resume_hash: str, candidate: db_models.Candidate = None):        
     llm_response = await llm_client.get_model_response(cfg, images, job.description)
     if llm_response.outcome != schemas.LLMOutcome.FAILED.value:        
         if candidate is None:

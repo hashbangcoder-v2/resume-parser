@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app import models, schemas
+from app import db_models as models, schemas
 from datetime import datetime
 
 def get_jobs(db: Session, job_id: int = None, title: str = None, skip: int = 0, limit: int = 100):

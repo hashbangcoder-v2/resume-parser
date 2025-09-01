@@ -71,6 +71,28 @@ const getStatusBadge = (status: string) => {
   }
 }
 
+const getFinalStatusIcon = (status: string) => {
+  switch (status) {
+    case "Accepted":
+      return <CheckCircle className="h-4 w-4 text-green-600" />
+    case "Rejected":
+      return <XCircle className="h-4 w-4 text-red-600" />
+    default:
+      return <AlertCircle className="h-4 w-4 text-gray-400" />
+  }
+}
+
+const getFinalStatusBadge = (status: string) => {
+  switch (status) {
+    case "Accepted":
+      return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">{status}</Badge>
+    case "Rejected":
+      return <Badge className="bg-red-100 text-red-800 hover:bg-red-100">{status}</Badge>
+    default:
+      return <Badge variant="secondary">Pending</Badge>
+  }
+}
+
 export function CandidatesTable({
   selectedJob,
   candidates,
@@ -95,14 +117,15 @@ export function CandidatesTable({
   const sortedCandidates = [...(candidates || [])].sort((a, b) => {
     if (!sortColumn) return 0
 
-    let aValue, bValue;
+    let aValue: any, bValue: any;
 
     if (sortColumn === 'name') {
       aValue = a.candidate.name;
       bValue = b.candidate.name;
     } else {
-      aValue = a[sortColumn];
-      bValue = b[sortColumn];
+      // Type-safe property access
+      aValue = (a as any)[sortColumn];
+      bValue = (b as any)[sortColumn];
     }
 
     // Handle different data types
@@ -240,19 +263,19 @@ export function CandidatesTable({
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button className="flex items-center space-x-2 hover:bg-gray-50 p-2 rounded transition-colors">
-                        {getStatusIcon(app.final_status)}
-                        {getStatusBadge(app.final_status)}
+                        {getFinalStatusIcon(app.final_status)}
+                        {getFinalStatusBadge(app.final_status)}
                         <ChevronDown className="h-3 w-3 text-gray-400" />
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      {["Shortlisted", "Needs Review", "Rejected"].map((status) => (
+                      {["Accepted", "Rejected"].map((status) => (
                         <DropdownMenuItem
                           key={status}
                           onClick={() => onFinalStatusChange(app.id, status)}
                           className="flex items-center space-x-2"
                         >
-                          {getStatusIcon(status)}
+                          {getFinalStatusIcon(status)}
                           <span>{status}</span>
                         </DropdownMenuItem>
                       ))}

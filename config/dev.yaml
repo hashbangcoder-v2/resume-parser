@@ -16,8 +16,7 @@ ai_model:
   endpoint: null  # No external endpoint in dev - using local vLLM  
   health_check_interval_seconds: 30
   health_check_timeout_seconds: 5
-  
-  # Model overrides for development (optional)
+    
   dev_overrides:
     # Override inference params for development
     inference_params:

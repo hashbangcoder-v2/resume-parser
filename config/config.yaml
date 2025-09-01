@@ -8,6 +8,9 @@ app:
 database:
   url: "sqlite:///./candidates.db"
 
+model_service:
+  url: "http://localhost:8001"
+
 logging:
   level: "INFO"
 

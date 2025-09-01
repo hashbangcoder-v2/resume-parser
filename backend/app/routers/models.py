@@ -2,20 +2,19 @@
 Model Management Router - Handles model selection and hot-swapping
 Communicates with the separate model service
 """
-from fastapi import APIRouter, HTTPException, Depends
-from sqlalchemy.orm import Session
-from typing import Dict, Any
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 import httpx
-from app.db import get_db
 from app.logger import logger
+from app.config import get_config
 
 router = APIRouter(
     prefix="/api/models",
     tags=["models"],
 )
 
-MODEL_SERVICE_URL = "http://localhost:8001"
+cfg = get_config()
+MODEL_SERVICE_URL = cfg.model_service.url
 
 
 class ModelSwapRequest(BaseModel):

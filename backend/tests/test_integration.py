@@ -10,7 +10,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.main import app
-from app import models
+from app import db_models as models
 from app.db import get_db, Base
 from app.config import get_config
 

@@ -24,8 +24,6 @@ def setup_logging(cfg: DictConfig):
         log_file_path,
         level=cfg.logging.level.upper(),
         format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}",
-        # rotation="10 MB",
-        # retention="7 days",
         enqueue=True,
         backtrace=True,
         diagnose=True,

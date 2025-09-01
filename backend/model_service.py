@@ -28,9 +28,9 @@ from app.model_utils import generate_llm_prompt
 
 
 class InferenceRequest(BaseModel):
-    images_b64: List[str]  # Base64 encoded images
+    images_b64: List[str]  
     job_description: str
-    model_config_override: Optional[Dict[str, Any]] = None  # Fixed: renamed from model_config
+    model_config_override: Optional[Dict[str, Any]] = None  
 
 
 class ModelSwapRequest(BaseModel):
@@ -43,6 +43,9 @@ class ModelStatus(BaseModel):
     inference_mode: str = "one_shot"
     status: str = "idle"  # "idle", "loading", "swapping", "error"
     gpu_memory_used: Optional[float] = None
+
+# Global model manager
+model_manager = None
 
 
 class ModelManager:
@@ -189,9 +192,6 @@ class ModelManager:
         )
 
 
-# Global model manager
-model_manager = None
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -215,15 +215,14 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Model Service",
-    description="VLLM Model Management Service",
-    version="1.0.0",
+    description="VLLM Model Management Service",    
     lifespan=lifespan
 )
 
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
+    """Health check"""
     if not model_manager:
         raise HTTPException(status_code=503, detail="Model manager not initialized")
     
