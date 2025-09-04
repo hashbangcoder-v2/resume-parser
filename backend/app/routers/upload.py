@@ -36,7 +36,7 @@ async def upload_files(
     """
     logger.info(f"Uploading {len(pdf_files)} files for job: {job_title}")
     processed_files = []
-    
+    processed_file_uris = []
     for _file in pdf_files:
         if not (_file.content_type == "application/pdf" and _file.filename and _file.filename.lower().endswith(".pdf")):
             logger.warning(f"Rejected invalid file: {_file.filename}")
@@ -75,7 +75,7 @@ async def upload_files(
             processed_files.append(_file.filename)
             
         file_url = store_file(cfg, file_bytes, f"{Path(_file.filename).stem}_{resume_hash[:8]}.pdf")
-        
+        processed_file_uris.append(file_url)
             
     if not processed_files:
         return {"message": "No new valid PDF files were processed."}, 400
@@ -94,20 +94,23 @@ def store_file(cfg: DictConfig, file_bytes: bytes, filename: str) -> str:
         return str(store_pdf_file_locally(cfg, file_bytes, filename))
 
 def upload_to_azure_blob(cfg: DictConfig, file_bytes: bytes, filename: str) -> str:
-    try:
-        connection_string = cfg.azure_blob.connection_string
-        container_name = cfg.azure_blob.container_name
-        blob_service_client = BlobServiceClient.from_connection_string(connection_string)
-        blob_client = blob_service_client.get_blob_client(container=container_name, blob=filename)
-        blob_client.upload_blob(file_bytes, overwrite=True)
-        return blob_client.url
-    except Exception as e:
-        logger.error(f"Failed to upload to Azure Blob Storage: {e}")
-        return ""
+    raise NotImplementedError("Azure Blob Storage is not implemented yet. Only for prod environment.")
 
 def store_pdf_file_locally(cfg: DictConfig, file_bytes: bytes, filename: str) -> Path:
-    save_dir = Path(cfg.local_storage.path)
-    save_dir.mkdir(parents=True, exist_ok=True)
-    file_path = save_dir / filename
+    file_path = Path(cfg.local_storage.path) / filename
     file_path.write_bytes(file_bytes)
     return file_path.resolve()
+
+
+def delete_file(cfg: DictConfig, filename: str):
+    if cfg.app.env == "prod":
+        return delete_from_azure_blob(cfg, filename)
+    else:
+        return delete_from_local_storage(cfg, filename)
+
+def delete_from_azure_blob(cfg: DictConfig, filename: str):
+    raise NotImplementedError("Azure Blob Storage is not implemented yet. Only for prod environment.")
+
+def delete_from_local_storage(cfg: DictConfig, filename: str):    
+    file_path = Path(cfg.local_storage.path) / filename
+    file_path.unlink(missing_ok=True)

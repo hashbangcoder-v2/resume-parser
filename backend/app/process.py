@@ -120,16 +120,22 @@ async def query_azure_ml_endpoint() -> LLMResponse:
 
 async def evaluate_candidate_and_create(cfg: DictConfig, images: List[Image.Image], job: db_models.Job, db_session: Session, resume_hash: str, candidate: db_models.Candidate = None):        
     llm_response = await process.get_model_response(cfg, images, job.description)
-    if llm_response.outcome != schemas.LLMOutcome.FAILED.value:        
+    if llm_response.outcome != schemas.LLMOutcome.FAILED.value and llm_response.outcome != schemas.LLMOutcome.INVALID.value:        
+        # candidate does not exist, create new candidate and application
         if candidate is None:
             logger.info(f"LLM evaluated candidate [resume-hash:{resume_hash}]: {llm_response.outcome} : {llm_response.reason}")
             candidate_new = schemas.CandidateCreate(name=llm_response.name, email=llm_response.email, resume_hash=resume_hash)
             candidate = crud.create_candidate(db_session, candidate=candidate_new)
         else:
+        # candidate exists, create new application only
             logger.info(f"LLM evaluated existing candidate [resume-hash:{resume_hash}]: {llm_response.outcome} : {llm_response.reason}")
         application_in = schemas.ApplicationCreate(candidate_id=candidate.id, job_id=job.id, status=llm_response.outcome, final_status=FinalStatus.TBD, reason=llm_response.reason)
         crud.create_application(db_session, application=application_in)
 
+    elif llm_response.outcome == schemas.LLMOutcome.INVALID.value:
+        logger.info(f"LLM evaluated candidate [resume-hash:{resume_hash}]: {llm_response.outcome} : {llm_response.reason}")                
+        application_in = schemas.InvalidApplicationCreate(job_id=job.id, status=llm_response.outcome, reason=llm_response.reason, resume_hash=resume_hash)
+        crud.create_application(db_session, application=application_in)
     else:
         application_in = schemas.ApplicationCreate(candidate_id=candidate.id, job_id=job.id, status=llm_response.outcome, final_status=FinalStatus.FAILED, reason=llm_response.reason)
         crud.create_application(db_session, application=application_in)

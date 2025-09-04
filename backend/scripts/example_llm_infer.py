@@ -1,7 +1,7 @@
 from vllm import LLM, SamplingParams
 from pdf2image import convert_from_path
 from pathlib import Path
-from app.model_utils import get_system_prompt
+from app.models.utils import get_system_prompt
 from omegaconf import OmegaConf
 from vllm.sampling_params import GuidedDecodingParams
 from app.schemas import LLMResponse

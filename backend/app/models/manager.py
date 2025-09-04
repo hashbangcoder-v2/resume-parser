@@ -11,7 +11,7 @@ from omegaconf import DictConfig, OmegaConf
 
 from app.logger import logger
 from app.schemas import LLMResponse
-from app.model_utils import generate_llm_prompt, get_model_handler
+from .utils import generate_llm_prompt, get_model_handler
 
 
 class ModelStatus:

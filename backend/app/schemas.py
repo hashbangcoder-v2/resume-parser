@@ -3,8 +3,13 @@ from datetime import datetime
 from typing import Optional, List
 from enum import Enum
 
-# Job Schemas
+#  Resume schema
+class Resume(BaseModel):
+    resume_hash: str
+    resume_url: str
+    is_invalid: bool = False
 
+# Job Schemas
 class JobBase(BaseModel):
     title: str
     description: str
@@ -19,7 +24,7 @@ class Job(JobBase):
 class CandidateBase(BaseModel):
     name: str
     email: str
-    resume_hash: Optional[str] = None
+    resume_hash: str    
 
 class CandidateCreate(CandidateBase):
     pass
@@ -37,13 +42,13 @@ class LLMOutcome(str, Enum):
     REJECTED = "Rejected"
     NEEDS_REVIEW = "Needs Review"
     FAILED = "Failed"
+    INVALID = "Invalid"
 
-# Human overrides if any
 class FinalStatus(str, Enum):
     SHORTLISTED = LLMOutcome.SHORTLISTED.value
-    REJECTED = LLMOutcome.REJECTED.value
-    NEEDS_REVIEW = LLMOutcome.NEEDS_REVIEW.value
+    REJECTED = LLMOutcome.REJECTED.value    
     FAILED = LLMOutcome.FAILED.value
+    INVALID = LLMOutcome.INVALID.value
     TBD = '-'
 
 class LLMResponse(BaseModel):
@@ -56,7 +61,12 @@ class LLMResponse(BaseModel):
 class ApplicationBase(BaseModel):
     status: str    
     reason: Optional[str] = None
-    file_url: Optional[str] = None
+    file_url: str
+
+
+class InvalidApplicationCreate(ApplicationBase):
+    job_id: int
+    candidate_id: int = -1 # invalid candidate
 
 class ApplicationCreate(ApplicationBase):
     job_id: int
@@ -75,6 +85,3 @@ class Application(ApplicationBase):
     
     class Config:
         orm_mode = True
-
-class CandidateApplication(Application):
-    job: Job 

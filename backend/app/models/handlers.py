@@ -1,4 +1,3 @@
-
 #  Model-specific VLLM configuration handlers
 
 from abc import ABC, abstractmethod
@@ -45,12 +44,7 @@ class BaseModelHandler(ABC):
         }
 
 
-class QwenModelHandler(BaseModelHandler):
-    """Handler for Qwen"""
-    
-    def get_model_family(self) -> str:
-        return "qwen"
-    
+class QwenModelHandler(BaseModelHandler):            
     def get_vllm_config(self) -> Dict[str, Any]:
         config = self.get_base_config()
         # Qwen-specific optimizations
@@ -63,10 +57,7 @@ class QwenModelHandler(BaseModelHandler):
 
 class GLMModelHandler(BaseModelHandler):
     """Handler for GLM model"""
-    
-    def get_model_family(self) -> str:
-        return "glm"
-    
+        
     def get_vllm_config(self) -> Dict[str, Any]:
         config = self.get_base_config()
         # GLM-specific optimizations
@@ -85,12 +76,8 @@ class GLMModelHandler(BaseModelHandler):
 class NvidiaModelHandler(BaseModelHandler):
     """Handler for NVIDIA models (Nemotron, etc.)"""
     
-    def get_model_family(self) -> str:
-        return "nvidia"
-    
     def get_vllm_config(self) -> Dict[str, Any]:
-        config = self.get_base_config()
-        # NVIDIA-specific optimizations
+        config = self.get_base_config()        
         config.update({
             "block_size": self.model_config.get("block_size", 16),
             "limit_mm_per_prompt": {"image": 6},  # Conservative for NVIDIA models
@@ -100,30 +87,11 @@ class NvidiaModelHandler(BaseModelHandler):
 
 class DoclingHandler(BaseModelHandler):
     """Handler for Smol models (SmolDocling, etc.)"""
-    
-    def get_model_family(self) -> str:
-        return "smol"
-    
+        
     def get_vllm_config(self) -> Dict[str, Any]:
         config = self.get_base_config()
-        # Smol models are typically smaller and more efficient
         config.update({
             "block_size": self.model_config.get("block_size", 8),
             "limit_mm_per_prompt": {"image": 12},  # Can handle more due to smaller size
-        })
-        return config
-
-
-class DefaultModelHandler(BaseModelHandler):
-    """Default handler for other models"""
-    
-    def get_model_family(self) -> str:
-        return "default"
-    
-    def get_vllm_config(self) -> Dict[str, Any]:
-        config = self.get_base_config()
-        config.update({
-            "block_size": self.model_config.get("block_size", self.common_config.block_size),
-            "limit_mm_per_prompt": {"image": 8},
         })
         return config

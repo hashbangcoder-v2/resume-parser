@@ -7,9 +7,9 @@ from pathlib import Path
 from functools import lru_cache
 from omegaconf import DictConfig
 from app.config import get_config
-from app.model_config_loaders import (
+from .handlers import (
     BaseModelHandler, QwenModelHandler, GLMModelHandler, 
-    NvidiaModelHandler, DoclingHandler, DefaultModelHandler
+    NvidiaModelHandler, DoclingHandler
 )
 
 cfg = get_config()
@@ -58,6 +58,4 @@ def get_model_handler(model_name: str, model_config: DictConfig, common_config: 
     elif "SMOL" in model_upper:
         return DoclingHandler(model_name, model_config, common_config)
     else:
-        return DefaultModelHandler(model_name, model_config, common_config)
-
-
+        raise ValueError(f"Model {model_name} not found")

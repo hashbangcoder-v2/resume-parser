@@ -12,7 +12,7 @@ from io import BytesIO
 
 from app.config import get_config
 from app.logger import setup_logging, logger
-from app.model_manager import ModelManager
+from app.models import ModelManager
 
 
 class InferenceRequest(BaseModel):
