@@ -6,6 +6,7 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
+  FileX,
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
@@ -53,6 +54,8 @@ const getStatusIcon = (status: string) => {
       return <XCircle className="h-4 w-4 text-red-600" />
     case "Needs Review":
       return <AlertCircle className="h-4 w-4 text-yellow-600" />
+    case "Invalid":
+      return <FileX className="h-4 w-4 text-gray-600" />
     default:
       return null
   }
@@ -66,6 +69,8 @@ const getStatusBadge = (status: string) => {
       return <Badge className="bg-red-100 text-red-800 hover:bg-red-100">{status}</Badge>
     case "Needs Review":
       return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">{status}</Badge>
+    case "Invalid":
+      return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">{status}</Badge>
     default:
       return <Badge variant="secondary">{status}</Badge>
   }
@@ -77,6 +82,8 @@ const getFinalStatusIcon = (status: string) => {
       return <CheckCircle className="h-4 w-4 text-green-600" />
     case "Rejected":
       return <XCircle className="h-4 w-4 text-red-600" />
+    case "Invalid":
+      return <FileX className="h-4 w-4 text-gray-600" />
     default:
       return <AlertCircle className="h-4 w-4 text-gray-400" />
   }
@@ -88,6 +95,8 @@ const getFinalStatusBadge = (status: string) => {
       return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">{status}</Badge>
     case "Rejected":
       return <Badge className="bg-red-100 text-red-800 hover:bg-red-100">{status}</Badge>
+    case "Invalid":
+      return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">{status}</Badge>
     default:
       return <Badge variant="secondary">Pending</Badge>
   }

@@ -1,13 +1,23 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Any
 from enum import Enum
+
+# Logged in User schema
+class LoggedInUser(BaseModel):
+    id: int
+    name: str
+    email: str
 
 #  Resume schema
 class Resume(BaseModel):
-    resume_hash: str
-    resume_url: str
+    hash: str
+    resume_uri: str
     is_invalid: bool = False
+    images: List[Any] = Field(default_factory=list)  # Use Any for PIL Images
+    
+    class Config:
+        arbitrary_types_allowed = True  # Allow PIL Image objects
 
 # Job Schemas
 class JobBase(BaseModel):
@@ -18,23 +28,17 @@ class Job(JobBase):
     id: int
     created_at: datetime    
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Candidate Schemas 
-class CandidateBase(BaseModel):
+class Candidate(BaseModel):
     name: str
     email: str
-    resume_hash: str    
-
-class CandidateCreate(CandidateBase):
-    pass
-
-class Candidate(CandidateBase):
-    id: int
-    created_at: datetime
+    resume_hash: str  
+    id: int = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # LLM Schemas
 class LLMOutcome(str, Enum):
@@ -61,8 +65,7 @@ class LLMResponse(BaseModel):
 class ApplicationBase(BaseModel):
     status: str    
     reason: Optional[str] = None
-    file_url: str
-
+    file_uri: str
 
 class InvalidApplicationCreate(ApplicationBase):
     job_id: int
@@ -84,4 +87,15 @@ class Application(ApplicationBase):
     candidate: Candidate
     
     class Config:
-        orm_mode = True
+        from_attributes = True
+
+
+# PRocessOutcome schema
+class Outcome(Enum):
+    SUCCESS = "Success" # Successfully processed the resume
+    LLM_ERROR = "LLM Error"
+    SERVER_ERROR = "Server Error"
+
+class ProcessOutcome(BaseModel):
+    outcome: Outcome
+    message: str = None

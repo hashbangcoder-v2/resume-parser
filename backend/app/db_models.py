@@ -32,8 +32,7 @@ class Application(Base):
     final_status = Column(String)
     reason = Column(String)
     last_updated = Column(DateTime, default=datetime.datetime.utcnow)
-    file_url = Column(String)
-    resume_hash = Column(String, unique=True, nullable=False)
+    file_uri = Column(String)    
     is_invalid = Column(Boolean, default=False)
     
     job = relationship("Job", back_populates="applications")

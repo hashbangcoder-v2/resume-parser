@@ -75,17 +75,28 @@ export function useCandidates(selectedJob: Job | null) {
 
   const handleFinalStatusChange = async (applicationId: number, newStatus: string) => {
     try {
-      await fetch(`${API_BASE_URL}/api/applications/${applicationId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/applications/${applicationId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ final_status: newStatus }),
       });
-      // Refresh local data
-      setCandidates(
-        candidates.map((app) =>
-          app.id === applicationId ? { ...app, final_status: newStatus } : app,
-        ),
-      );
+      
+      if (response.ok) {
+        const updatedApplication = await response.json();
+        // Update local data with the response from server (includes updated last_updated timestamp)
+        setCandidates(
+          candidates.map((app) =>
+            app.id === applicationId ? {
+              ...app,
+              final_status: newStatus,
+              last_updated: updatedApplication.last_updated
+            } : app,
+          ),
+        );
+        setLastUpdated(new Date().toLocaleString()); // Update the global "last updated" indicator
+      } else {
+        throw new Error('Failed to update status');
+      }
     } catch (error) {
       console.error("Failed to update final status:", error);
     }

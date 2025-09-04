@@ -6,7 +6,7 @@ router = APIRouter(
     tags=["user"],
 )
 
-@router.get("", response_model=schemas.Candidate)
+@router.get("", response_model=schemas.LoggedInUser)
 def get_user():
     logger.info("Getting logged in user")    
-    return {"id": 0, "name": "Mock User", "email": "mock.user@qwerty.com", "created_at": "2024-01-01T12:00:00"} 
+    return {"id": 0, "name": "Mock User", "email": "mock.user@qwerty.com"} 

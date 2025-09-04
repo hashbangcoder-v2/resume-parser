@@ -8,6 +8,7 @@ import { CreateJobModal } from "@/components/CreateJobModal"
 import { JobDescriptionModal } from "@/components/JobDescriptionModal"
 import { ControlButtons } from "@/components/ControlButtons"
 import { CandidatesTable } from "@/components/CandidatesTable"
+import { NotificationPopup } from "@/components/NotificationPopup"
 import { useJobs } from "@/hooks/useJobs"
 import { useModels } from "@/hooks/useModels"
 import { useCandidates } from "@/hooks/useCandidates"
@@ -30,6 +31,15 @@ export default function CandidateDashboard() {
   const [editingJobDescription, setEditingJobDescription] = useState("")
   const [isUpdatingJob, setIsUpdatingJob] = useState(false)
   const [userInfo, setUserInfo] = useState({ name: "", email: "" })
+  
+  // Notification state
+  const [showNotification, setShowNotification] = useState(false)
+  const [notificationMessage, setNotificationMessage] = useState<{
+    success: number
+    llm_error: number
+    server_error: number
+    total: number
+  } | null>(null)
 
   // Custom hooks for data management
   const { jobs, selectedJob, setSelectedJob, refreshJobs, setJobs } = useJobs()
@@ -59,12 +69,12 @@ export default function CandidateDashboard() {
     if (selectedJob) {
       setIsRefreshing(true);
       refreshCandidates().finally(() => {
-        setTimeout(() => setIsRefreshing(false), 1000); // Ensure animation runs for 1s
+          setTimeout(() => setIsRefreshing(false), 1000); // Ensure animation runs for 1s
       });
     }
   }
 
-  const handleFileUpload = () => {
+    const handleFileUpload = () => {
     if (!selectedJob) {
       alert("Please select a job first before uploading resumes.");
       return;
@@ -91,6 +101,18 @@ export default function CandidateDashboard() {
           });
           const result = await response.json();
           console.log("Upload result:", result);
+          
+          // Show notification with processing results
+          if (result.message) {
+            setNotificationMessage(result.message);
+            setShowNotification(true);
+            
+            // Auto-hide notification after 8 seconds
+            setTimeout(() => {
+              setShowNotification(false);
+            }, 8000);
+          }
+          
           handleRefresh(); 
         } catch (error) {
           console.error("File upload failed:", error);
@@ -195,6 +217,13 @@ export default function CandidateDashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header userInfo={userInfo} />
+      
+      {/* Notification Popup */}
+      <NotificationPopup
+        isVisible={showNotification}
+        message={notificationMessage}
+        onClose={() => setShowNotification(false)}
+      />
 
       {/* Main Content */}
       <div className="px-8 py-6">
