@@ -93,6 +93,7 @@ class Application(ApplicationBase):
 # PRocessOutcome schema
 class Outcome(Enum):
     SUCCESS = "Success" # Successfully processed the resume
+    SKIPPED = "Skipped" # Skipped the resume because it already exists
     LLM_ERROR = "LLM Error"
     SERVER_ERROR = "Server Error"
 

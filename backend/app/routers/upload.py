@@ -35,7 +35,7 @@ async def upload_files(
     """
     logger.info(f"Uploading {len(pdf_files)} files for job: {job_title}")
     processed_files = []
-    all_results = {Outcome.SUCCESS: 0, Outcome.LLM_ERROR: 0, Outcome.SERVER_ERROR: 0}
+    all_results = {Outcome.SUCCESS: 0, Outcome.LLM_ERROR: 0, Outcome.SERVER_ERROR: 0, Outcome.SKIPPED: 0}
     for _file in pdf_files:
         if not (_file.content_type == "application/pdf" and _file.filename and _file.filename.lower().endswith(".pdf")):
             logger.warning(f"Rejected invalid file: {_file.filename}")
@@ -65,6 +65,7 @@ async def upload_files(
             # check if candidate has applied to this job
             if jobs_applied is not None and job_title in [job.title for job in list(jobs_applied)]:
                 logger.info(f"Skipping candidate {candidate.name} / {candidate.email} because they have already applied to this job: {job_title}")
+                all_results[Outcome.SKIPPED] += 1
                 continue    
             else:
                 #  candidate exists but has not applied to this job
@@ -81,16 +82,14 @@ async def upload_files(
             if result.outcome == Outcome.SUCCESS:
                 processed_files.append(_file.filename)
                         
-            
-    if not processed_files:
-        return {"message": "No new valid PDF files were processed."}, 400
-    
+                    
     return {
         "message": {
             "success": all_results[Outcome.SUCCESS],
             "llm_error": all_results[Outcome.LLM_ERROR],
             "server_error": all_results[Outcome.SERVER_ERROR],
-            "total": all_results[Outcome.SUCCESS] + all_results[Outcome.LLM_ERROR] + all_results[Outcome.SERVER_ERROR]
+            "skipped": all_results[Outcome.SKIPPED],
+            "total": all_results[Outcome.SUCCESS] + all_results[Outcome.LLM_ERROR] + all_results[Outcome.SERVER_ERROR] + all_results[Outcome.SKIPPED]
         },
         "debug_message": f"{all_results[Outcome.SUCCESS]}/{len(pdf_files)} resumes processed and saved.",
         "processed_files": processed_files

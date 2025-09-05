@@ -36,6 +36,7 @@ export default function CandidateDashboard() {
   const [showNotification, setShowNotification] = useState(false)
   const [notificationMessage, setNotificationMessage] = useState<{
     success: number
+    skipped: number
     llm_error: number
     server_error: number
     total: number
