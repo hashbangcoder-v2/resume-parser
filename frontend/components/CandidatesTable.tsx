@@ -20,7 +20,7 @@ interface Candidate {
 
 interface Application {
   id: number
-  candidate: Candidate
+  candidate: Candidate | null  // Allow null for invalid applications
   status: string
   last_updated: string
   applied_on: string
@@ -41,6 +41,8 @@ interface CandidatesTableProps {
   sortColumn: string | null
   sortDirection: "asc" | "desc"
   isClient: boolean
+  showInvalid: boolean
+  onShowInvalidChange: (show: boolean) => void
   onSort: (column: string) => void
   onFinalStatusChange: (applicationId: number, newStatus: string) => void
   onFileOpen: (fileUrl: string, candidateName: string) => void
@@ -108,6 +110,8 @@ export function CandidatesTable({
   sortColumn,
   sortDirection,
   isClient,
+  showInvalid,
+  onShowInvalidChange,
   onSort,
   onFinalStatusChange,
   onFileOpen
@@ -129,8 +133,8 @@ export function CandidatesTable({
     let aValue: any, bValue: any;
 
     if (sortColumn === 'name') {
-      aValue = a.candidate.name;
-      bValue = b.candidate.name;
+      aValue = a.candidate?.name || '';  // Handle null candidate
+      bValue = b.candidate?.name || '';  // Handle null candidate
     } else {
       // Type-safe property access
       aValue = (a as any)[sortColumn];
@@ -168,7 +172,24 @@ export function CandidatesTable({
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <div className="mb-4">
-        <h2 className="text-xl font-semibold text-gray-900">Candidates for {selectedJob.title}</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-gray-900">Candidates for {selectedJob.title}</h2>
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="show-invalid"
+              checked={showInvalid}
+              onChange={(e) => onShowInvalidChange(e.target.checked)}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <label 
+              htmlFor="show-invalid" 
+              className="text-sm font-medium text-gray-700 cursor-pointer"
+            >
+              Show Invalid
+            </label>
+          </div>
+        </div>
         <p className="text-sm text-gray-600 mt-1">
           {candidates.length} candidate{candidates.length !== 1 ? "s" : ""} found
         </p>
@@ -246,17 +267,19 @@ export function CandidatesTable({
           <TableBody>
             {sortedCandidates.map((app) => (
               <TableRow key={app.id}>
-                <TableCell className="font-medium">{app.candidate.id}</TableCell>
-                <TableCell className="font-medium">{app.candidate.name}</TableCell>
+                <TableCell className="font-medium">{app.candidate?.id || '-'}</TableCell>
+                <TableCell className="font-medium">
+                  {app.candidate?.name || <span className="text-gray-400 italic">Invalid Document</span>}
+                </TableCell>
                 <TableCell className="text-gray-600">{isClient && new Date(app.last_updated).toLocaleString()}</TableCell>
                 <TableCell>
                   <div className="flex items-center space-x-2">
                     {getStatusIcon(app.status)}
                     {getStatusBadge(app.status)}
                     <button
-                      onClick={() => onFileOpen(app.file_url, app.candidate.name)}
+                      onClick={() => onFileOpen(app.file_url, app.candidate?.name || 'Invalid Document')}
                       className="ml-2 p-1 hover:bg-gray-100 rounded transition-colors"
-                      title={`Open file for ${app.candidate.name}`}
+                      title={`Open file for ${app.candidate?.name || 'Invalid Document'}`}
                     >
                       <ExternalLink className="h-4 w-4 text-gray-500 hover:text-blue-600" />
                     </button>

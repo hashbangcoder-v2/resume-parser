@@ -118,6 +118,11 @@ async def query_azure_ml_endpoint() -> LLMResponse:
     raise NotImplementedError("Azure ML Online Endpoint is not implemented yet.")
 
 
+def _generate_unique_placeholder_email(resume_hash: str) -> str:
+    """Generate a unique placeholder email for invalid document scenarios"""
+    return f"invalid.email.{resume_hash[:8]}@candidate.blah"
+
+
 async def evaluate_candidate_and_create(cfg: DictConfig, job: db_models.Job, db_session: Session, resume: schemas.Resume, candidate: db_models.Candidate = None):        
     try:
         llm_response = await process.get_model_response(cfg, resume.images, job.description)
@@ -125,7 +130,14 @@ async def evaluate_candidate_and_create(cfg: DictConfig, job: db_models.Job, db_
             # candidate does not exist, create new candidate and application
             if candidate is None:
                 logger.info(f"LLM evaluated candidate [resume-hash:{resume.hash}]: {llm_response.outcome} : {llm_response.reason}")
-                candidate_new = schemas.Candidate(name=llm_response.name, email=llm_response.email, resume_hash=resume.hash)
+                
+                # Handle placeholder emails to avoid unique constraint violations
+                email = llm_response.email
+                if email.lower() in ['n/a', 'na', 'not available', 'null', 'none', ''] or not '@' in email:
+                    email = _generate_unique_placeholder_email(resume.hash)
+                    logger.warning(f"LLM returned placeholder email '{llm_response.email}', using unique placeholder: {email}")
+                
+                candidate_new = schemas.Candidate(name=llm_response.name, email=email, resume_hash=resume.hash)
                 logger.debug(f"Creating new candidate: {candidate_new}; llm_response: {llm_response}")
                 candidate = crud.create_candidate(db_session, candidate=candidate_new)
             else:
@@ -138,6 +150,7 @@ async def evaluate_candidate_and_create(cfg: DictConfig, job: db_models.Job, db_
             logger.warning(f"LLM evaluated candidate [resume-hash:{resume.hash}]: {llm_response.outcome} : {llm_response.reason}")                
             application_in = schemas.InvalidApplicationCreate(job_id=job.id, status=llm_response.outcome, reason=llm_response.reason, file_uri=resume.resume_uri)
             crud.create_application(db_session, application=application_in)
+            return schemas.ProcessOutcome(outcome=schemas.Outcome.SUCCESS, message=f"{llm_response.outcome} : {llm_response.reason}")
         else:
             # application_in = schemas.ApplicationCreate(candidate_id=candidate.id, job_id=job.id, status=llm_response.outcome, final_status=FinalStatus.FAILED, reason=llm_response.reason, file_uri=resume.resume_uri)
             # crud.create_application(db_session, application=application_in)

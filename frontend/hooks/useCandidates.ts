@@ -9,7 +9,7 @@ interface Candidate {
 
 interface Application {
   id: number
-  candidate: Candidate
+  candidate: Candidate | null  // Allow null for invalid applications
   status: string
   last_updated: string
   applied_on: string
@@ -29,14 +29,16 @@ export function useCandidates(selectedJob: Job | null) {
   const [sortColumn, setSortColumn] = useState<string | null>(null)
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc")
   const [lastUpdated, setLastUpdated] = useState(new Date().toLocaleString())
+  const [showInvalid, setShowInvalid] = useState(false)
 
-  // Fetch candidates when a job is selected
+  // Fetch candidates when a job is selected or showInvalid changes
   useEffect(() => {
     if (selectedJob) {
       const fetchCandidates = async () => {
         try {
-          console.log("Fetching candidates for job:", selectedJob.id);
-          const response = await fetch(`${API_BASE_URL}/api/applications/${selectedJob.id}`);
+          console.log("Fetching candidates for job:", selectedJob.id, "include_invalid:", showInvalid);
+          const url = `${API_BASE_URL}/api/applications/${selectedJob.id}?include_invalid=${showInvalid}`;
+          const response = await fetch(url);
           const data = await response.json();
           setCandidates(Array.isArray(data) ? data : []);
           setLastUpdated(new Date().toLocaleString());
@@ -49,12 +51,13 @@ export function useCandidates(selectedJob: Job | null) {
     } else {
       setCandidates([]);
     }
-  }, [selectedJob]);
+  }, [selectedJob, showInvalid]);
 
   const refreshCandidates = async () => {
     if (selectedJob) {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/applications/${selectedJob.id}`);
+        const url = `${API_BASE_URL}/api/applications/${selectedJob.id}?include_invalid=${showInvalid}`;
+        const response = await fetch(url);
         const data = await response.json();
         setCandidates(data);
         setLastUpdated(new Date().toLocaleString());
@@ -114,6 +117,8 @@ export function useCandidates(selectedJob: Job | null) {
     sortColumn,
     sortDirection,
     lastUpdated,
+    showInvalid,
+    setShowInvalid,
     refreshCandidates,
     handleSort,
     handleFinalStatusChange,

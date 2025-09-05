@@ -90,8 +90,44 @@ def create_candidate(db: Session, candidate: schemas.Candidate):
 
 
 # Application CRUD
-def get_applications_for_job(db: Session, job_id: int, skip: int = 0, limit: int = 100):
-    return db.query(db_models.Application).filter(db_models.Application.job_id == job_id).offset(skip).limit(limit).all()
+def get_applications_for_job(db: Session, job_id: int, include_invalid: bool = False, skip: int = 0, limit: int = 100):
+    """
+    Get all applications for a specific job with proper candidate relationship loading.
+    
+    Args:
+        job_id: ID of the job to get applications for
+        include_invalid: If True, includes invalid applications (candidate_id = -1)
+        skip: Number of records to skip
+        limit: Maximum number of records to return
+    """
+    from sqlalchemy.orm import joinedload
+    
+    if include_invalid:
+        # Include both valid applications and invalid ones (candidate_id = -1)
+        return (
+            db.query(db_models.Application)
+            .options(joinedload(db_models.Application.candidate))
+            .filter(db_models.Application.job_id == job_id)
+            .outerjoin(db_models.Candidate, db_models.Application.candidate_id == db_models.Candidate.id)
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
+    else:
+        # Only valid applications with existing candidates
+        return (
+            db.query(db_models.Application)
+            .options(joinedload(db_models.Application.candidate))
+            .filter(
+                db_models.Application.job_id == job_id,
+                db_models.Application.candidate_id.isnot(None),  # Exclude orphaned applications
+                db_models.Application.candidate_id != -1  # Exclude invalid applications
+            )
+            .join(db_models.Candidate, db_models.Application.candidate_id == db_models.Candidate.id, isouter=False)
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
 
 def create_application(db: Session, application: schemas.ApplicationCreate):
     db_application = db_models.Application(**application.model_dump())

@@ -45,16 +45,8 @@ class ModelManager:
     
     def _get_model_config(self, model_name: str) -> DictConfig:
         """
-        Get model configuration by name from any category.
+        Get model configuration by name.
         
-        Args:
-            model_name: Name of the model to find
-            
-        Returns:
-            DictConfig: Model configuration
-            
-        Raises:
-            ValueError: If model not found in any category
         """
         # Define search order and corresponding config paths
         config_sources = [
@@ -73,7 +65,7 @@ class ModelManager:
         for category, config_dict in config_sources:
             available_models.extend(f"{category}:{name}" for name in config_dict.keys())
         
-        raise ValueError(
+        raise Exception(
             f"Model '{model_name}' not found in configuration. "
             f"Available models: {', '.join(available_models)}"
         )
@@ -81,10 +73,7 @@ class ModelManager:
     @property
     def available_models(self) -> dict:
         """
-        Get all available models organized by category.
-        
-        Returns:
-            dict: Dictionary with categories as keys and model lists as values
+        Get all available models.    
         """
         return {
             'one_shot': list(self.cfg.models.one_shot.keys()),
@@ -97,35 +86,25 @@ class ModelManager:
         logger.info("Starting GPU memory cleanup...")
         
         try:
-            # Step 1: Delete the VLLM model
+            # Delete the VLLM model
             if hasattr(self, 'vllm_model') and self.vllm_model is not None:
                 logger.info("Deleting VLLM model...")
                 del self.vllm_model
                 self.vllm_model = None
             
-            # Step 2: Force Python garbage collection
-            logger.info("Running garbage collection...")
-            gc.collect()
-            
             logger.info("Clearing CUDA cache...")
             # Clear PyTorch CUDA cache
             torch.cuda.empty_cache()
-            
-            # Force synchronization
             torch.cuda.synchronize()
-            
-            # Get memory info for logging
-            try:
-                memory_allocated = torch.cuda.memory_allocated() / 1024**3  # GB
-                memory_cached = torch.cuda.memory_reserved() / 1024**3     # GB
-                logger.info(f"GPU Memory after cleanup - Allocated: {memory_allocated:.2f}GB, Cached: {memory_cached:.2f}GB")
-            except Exception as mem_error:
-                logger.warning(f"Could not get GPU memory info: {mem_error}")
+                                    
+            memory_allocated = torch.cuda.memory_allocated() / 1024**3  # GB
+            memory_cached = torch.cuda.memory_reserved() / 1024**3     # GB
+            logger.info(f"GPU Memory after cleanup - Allocated: {memory_allocated:.2f}GB, Cached: {memory_cached:.2f}GB")
             logger.info("GPU memory cleanup completed")
             
         except Exception as cleanup_error:
             logger.error(f"Error during GPU memory cleanup: {cleanup_error}")
-            # Don't raise the error, as this is cleanup - continue with model loading
+
     
     async def initialize_default_model(self):
         """Initialize the default model from config"""

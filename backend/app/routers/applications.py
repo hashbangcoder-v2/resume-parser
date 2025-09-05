@@ -17,6 +17,6 @@ def update_application_status(application_id: int, status: schemas.ApplicationUp
     return db_application 
 
 @router.get("/{job_id}", response_model=List[schemas.Application])
-def read_job_applications(job_id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    applications = crud.get_applications_for_job(db, job_id=job_id, skip=skip, limit=limit)
+def read_job_applications(job_id: int, include_invalid: bool = False, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    applications = crud.get_applications_for_job(db, job_id=job_id, include_invalid=include_invalid, skip=skip, limit=limit)
     return applications 

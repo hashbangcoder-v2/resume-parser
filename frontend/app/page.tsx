@@ -45,7 +45,7 @@ export default function CandidateDashboard() {
   // Custom hooks for data management
   const { jobs, selectedJob, setSelectedJob, refreshJobs, setJobs } = useJobs()
   const { availableModels, currentModel, modelStatus, isSwappingModel, handleModelSwap, setModelStatus } = useModels()
-  const { candidates, sortColumn, sortDirection, lastUpdated, refreshCandidates, handleSort, handleFinalStatusChange, handleFileOpen } = useCandidates(selectedJob)
+  const { candidates, sortColumn, sortDirection, lastUpdated, showInvalid, setShowInvalid, refreshCandidates, handleSort, handleFinalStatusChange, handleFileOpen } = useCandidates(selectedJob)
   const { backendStatus } = useSystemStatus(setModelStatus)
 
   useEffect(() => {
@@ -286,6 +286,8 @@ export default function CandidateDashboard() {
           sortColumn={sortColumn}
           sortDirection={sortDirection}
           isClient={isClient}
+          showInvalid={showInvalid}
+          onShowInvalidChange={setShowInvalid}
           onSort={handleSort}
           onFinalStatusChange={handleFinalStatusChange}
           onFileOpen={handleFileOpen}

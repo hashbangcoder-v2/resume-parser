@@ -84,7 +84,7 @@ class Application(ApplicationBase):
     candidate_id: int
     applied_on: datetime
     last_updated: datetime
-    candidate: Candidate
+    candidate: Optional[Candidate] = None  # Allow None for invalid applications
     
     class Config:
         from_attributes = True
