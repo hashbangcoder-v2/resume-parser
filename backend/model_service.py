@@ -45,9 +45,11 @@ async def lifespan(app: FastAPI):
     
     yield
     
-    # Shutdown
-    if model_manager and model_manager.vllm_model:
-        del model_manager.vllm_model
+    # Shutdown - comprehensive cleanup
+    if model_manager:
+        logger.info("Shutting down model service...")
+        model_manager._cleanup_gpu_memory()
+        logger.info("Model service shutdown completed")
 
 
 app = FastAPI(

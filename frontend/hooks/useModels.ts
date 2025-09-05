@@ -77,10 +77,10 @@ export function useModels() {
         status: "swapping"
       });
       setModelStatus("swapping");
-      
-      // Poll for completion with improved logic
+            
+      // TODO: Make this more robust
       let pollAttempts = 0;
-      const maxPollAttempts = 20; // 20 attempts * 3 seconds = 60 seconds max
+      const maxPollAttempts = 50; // 50 attempts * 3 seconds = 150 seconds max
       
       const pollStatus = async () => {
         try {

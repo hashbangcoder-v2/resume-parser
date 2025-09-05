@@ -2,6 +2,8 @@
 
 import os
 import json
+import gc
+import torch
 from typing import List, Optional
 from PIL import Image
 from fastapi import HTTPException
@@ -41,6 +43,90 @@ class ModelManager:
         self.status = "idle"
         self.is_swapping = False
     
+    def _get_model_config(self, model_name: str) -> DictConfig:
+        """
+        Get model configuration by name from any category.
+        
+        Args:
+            model_name: Name of the model to find
+            
+        Returns:
+            DictConfig: Model configuration
+            
+        Raises:
+            ValueError: If model not found in any category
+        """
+        # Define search order and corresponding config paths
+        config_sources = [
+            ('one_shot', self.cfg.models.one_shot),
+            ('hybrid_parser', self.cfg.models.hybrid_parser), 
+            ('hybrid', self.cfg.models.hybrid)
+        ]
+        
+        for category, config_dict in config_sources:
+            if model_name in config_dict:
+                logger.debug(f"Found model '{model_name}' in category '{category}'")
+                return config_dict[model_name]
+        
+        # Model not found in any category
+        available_models = []
+        for category, config_dict in config_sources:
+            available_models.extend(f"{category}:{name}" for name in config_dict.keys())
+        
+        raise ValueError(
+            f"Model '{model_name}' not found in configuration. "
+            f"Available models: {', '.join(available_models)}"
+        )
+    
+    @property
+    def available_models(self) -> dict:
+        """
+        Get all available models organized by category.
+        
+        Returns:
+            dict: Dictionary with categories as keys and model lists as values
+        """
+        return {
+            'one_shot': list(self.cfg.models.one_shot.keys()),
+            'hybrid_parser': list(self.cfg.models.hybrid_parser.keys()),
+            'hybrid': list(self.cfg.models.hybrid.keys())
+        }
+
+    def _cleanup_gpu_memory(self):
+        """Comprehensive GPU memory cleanup"""
+        logger.info("Starting GPU memory cleanup...")
+        
+        try:
+            # Step 1: Delete the VLLM model
+            if hasattr(self, 'vllm_model') and self.vllm_model is not None:
+                logger.info("Deleting VLLM model...")
+                del self.vllm_model
+                self.vllm_model = None
+            
+            # Step 2: Force Python garbage collection
+            logger.info("Running garbage collection...")
+            gc.collect()
+            
+            logger.info("Clearing CUDA cache...")
+            # Clear PyTorch CUDA cache
+            torch.cuda.empty_cache()
+            
+            # Force synchronization
+            torch.cuda.synchronize()
+            
+            # Get memory info for logging
+            try:
+                memory_allocated = torch.cuda.memory_allocated() / 1024**3  # GB
+                memory_cached = torch.cuda.memory_reserved() / 1024**3     # GB
+                logger.info(f"GPU Memory after cleanup - Allocated: {memory_allocated:.2f}GB, Cached: {memory_cached:.2f}GB")
+            except Exception as mem_error:
+                logger.warning(f"Could not get GPU memory info: {mem_error}")
+            logger.info("GPU memory cleanup completed")
+            
+        except Exception as cleanup_error:
+            logger.error(f"Error during GPU memory cleanup: {cleanup_error}")
+            # Don't raise the error, as this is cleanup - continue with model loading
+    
     async def initialize_default_model(self):
         """Initialize the default model from config"""
         try:
@@ -62,31 +148,13 @@ class ModelManager:
                 for key, value in self.cfg.env_vars.items():
                     os.environ[str(key)] = str(value)
             
-            # Find model in the new config structure
-            model_config = None
+            # Get model configuration using the clean lookup method
+            model_config = self._get_model_config(model_name)
             
-            # Check one_shot models
-            if model_name in self.cfg.models.one_shot:
-                model_config = self.cfg.models.one_shot[model_name]
-            # Check hybrid parser models
-            elif model_name in self.cfg.models.hybrid_parser:
-                model_config = self.cfg.models.hybrid_parser[model_name]
-            # Check hybrid reasoning models
-            elif model_name in self.cfg.models.hybrid:
-                model_config = self.cfg.models.hybrid[model_name]
-            
-            if model_config is None:
-                raise ValueError(f"Model '{model_name}' not found in configuration")
-            
-            # Cleanup old model - with defensive check
+            # Cleanup old model with comprehensive GPU memory cleanup
             if hasattr(self, 'vllm_model') and self.vllm_model is not None:
                 logger.info("Cleaning up previous model...")
-                try:
-                    del self.vllm_model
-                except Exception as cleanup_error:
-                    logger.warning(f"Error during model cleanup: {cleanup_error}")
-                finally:
-                    self.vllm_model = None                
+                self._cleanup_gpu_memory()                
             
             # Merge with common configuration
             merged_config = OmegaConf.merge(self.cfg.vllm_common_inference_args, model_config)
@@ -126,7 +194,11 @@ class ModelManager:
         try:
             logger.info("Attempting model recovery...")
             
-            # Always fall back to default model
+            # Force cleanup before recovery attempt
+            logger.info("Performing cleanup before recovery...")
+            self._cleanup_gpu_memory()
+            
+            # fall back to default model
             default_model = self.cfg.default_model
             if default_model != self.current_model_name:
                 logger.info(f"Attempting to reload default model: {default_model}")
@@ -151,20 +223,8 @@ class ModelManager:
             raise HTTPException(status_code=503, detail="Model is swapping, please try again later")
         
         try:
-            # Get model config for sampling params
-            current_model_config = None
-            
-            # Find current model in the new config structure
-            if self.current_model_name in self.cfg.models.one_shot:
-                current_model_config = self.cfg.models.one_shot[self.current_model_name]
-            elif self.current_model_name in self.cfg.models.hybrid_parser:
-                current_model_config = self.cfg.models.hybrid_parser[self.current_model_name]
-            elif self.current_model_name in self.cfg.models.hybrid:
-                current_model_config = self.cfg.models.hybrid[self.current_model_name]
-            
-            if current_model_config is None:
-                raise ValueError(f"Current model '{self.current_model_name}' not found in configuration")
-            
+            # Get model config for sampling params using the clean lookup method
+            current_model_config = self._get_model_config(self.current_model_name)
             model_config = OmegaConf.merge(self.cfg.vllm_common_inference_args, current_model_config)
             
             model_max_len = self.vllm_model.llm_engine.model_config.max_model_len
